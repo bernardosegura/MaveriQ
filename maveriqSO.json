@@ -1,0 +1,26 @@
+[{
+	"os": "Windows 11",
+	"ram": 4,
+	"ncore": "",
+	"mcore": 4,
+	"ssd": "ssd.qcow2",
+	"socket": "/tmp/qWin2Once.unix",
+	"cmd":["qemu-system-x86_64",
+    "--enable-kvm",
+    "-m <-(ram)->G", 
+    "-M q35,accel=kvm",
+    "-cpu host",
+    "-smp <-(mcore)-><-(ncore)->",
+    "-drive if=pflash,format=raw,readonly=on,file=bios/OVMF_CODE.fd",
+    "-drive if=pflash,format=raw,file=bios/OVMF_VARS.fd",
+    "-drive file=disks/<-(ssd)->,index=0,media=disk,if=virtio,cache=unsafe",
+    "-rtc base=localtime",
+    "-vga virtio",
+    "-net nic,model=virtio-net-pci",
+    "-net user,hostfwd=tcp::3389-:3389",
+    "-device intel-hda -audiodev pipewire,id=pwsnd -device hda-duplex,audiodev=pwsnd",
+    "-device qemu-xhci,id=xhci",
+    "-name \"<-(os)->\"",
+	"-monitor unix:<-(socket)->,server,nowait"]
+}
+]

@@ -1,0 +1,19 @@
+{
+  "name": "MaveriQ",
+  "version": "1.0.0",
+  "description": "FrontEnd basico para la ejecicion de maquinas virtuales con qemu en Linux.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "node build.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Bernardo Segura",
+  "license": "ISC",
+  "dependencies": {
+    "@electron/asar": "^3.2.17",
+    "adm-zip": "^0.5.16",
+    "electron": "^31.2.1",
+    "username": "^7.0.0"
+  }
+}
