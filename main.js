@@ -1,6 +1,7 @@
-const { app,ipcMain,BrowserWindow } = require('electron');
-//const net = require('net');
+const { app,ipcMain,BrowserWindow, globalShortcut } = require('electron');
 let win = null;
+let isdev = (__dirname.indexOf("app.asar") === -1)?true:false; 
+
 
 function createWindow() {
   const path = require('path');
@@ -14,20 +15,16 @@ function createWindow() {
       //enableRemoteModule: false,
     },
     autoHideMenuBar: true,
-    resizable: false,
+    resizable: isdev,
     //maximizable: false,
     icon: path.join(__dirname, 'icon.png')
   });
   win.loadFile('index.html');
-  //win.loadURL("http://localhost:"+((process.argv[2] !== undefined)?process.argv[2]:"3000")+"/muldok/app/");
-  //const htmlContent = fs.readFileSync(path.join(__dirname,'index.html'), 'utf8').replace("{$URL}","http://localhost:"+((process.argv[2] !== undefined)?process.argv[2]:"3000")+"/muldok/app/");
-  //win.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`);
-  //win.maximize();
-
-  //win.webContents.executeJavaScript('var puerto="'+process.argv[2]+'";');
-//setTimeout(function(){win.webContents.executeJavaScript('var puerto="'+process.argv[2]+'"')},1000);
-//setTimeout(function(){win.webContents.executeJavaScript('document.getElementById("program").innerHTML="'+process.argv[2]+'"')},1000);
-   
+  
+  if(!isdev)
+    globalShortcut.register('CommandOrControl+Shift+I', () => {
+          return false;
+      });   
 }
 
 app.whenReady().then(createWindow);     
@@ -98,11 +95,11 @@ function processUSB(disp, metodo,pswd,callback) {
     const client = net.createConnection(socketPath, () => {
         let tBus = (metodo.split(":")[1] == "on")? ",bus=xhci.0":"";
 
-        client.write("device_add usb-host"+tBus+",hostbus="+address.bus+",hostaddr="+address.dev+",id="+name+'\n');
+        client.write("device_add usb-host"+tBus+",hostbus="+parseInt(address.bus)+",hostaddr="+parseInt(address.dev)+",id="+name+'\n');
         if(callback)
             win.webContents.executeJavaScript(callback +'({status: 0,mensaje:"conecto"});');
         client.end();  
-      //console.log("device_add usb-host"+tBus+",hostbus="+address.bus+",hostaddr="+address.dev+",id="+name);
+      //console.log("device_add usb-host"+tBus+",hostbus="+parseInt(address.bus)+",hostaddr="+parseInt(address.dev)+",id="+name);
     });
 
   }
