@@ -4,6 +4,7 @@ const { execSync } = require("child_process");
 contextBridge.exposeInMainWorld('electronAPI', {
   checklsusb: () => (execSync("command -v lsusb | wc -l").toString() == 1)?true:false,
   checkqemu: () => (execSync("command -v qemu-system-x86_64 | wc -l").toString() == 1)?true:false,
+  checkqemuimg: () => (execSync("command -v qemu-img | wc -l").toString() == 1)?true:false,
   //checksocat: () => (execSync("command -v socat | wc -l").toString() == 1)?true:false,
   lsusb: () =>{ let usbdev = execSync('lsusb').toString().split("\n").filter(elemento => (!elemento.includes("Linux Foundation") && elemento != ''));
           let deviceUSB = [];
@@ -25,4 +26,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   playOS: (pwd,cmd) => ipcRenderer.send("play-os",[pwd,cmd]),
   validaPlayOS: (os) => ipcRenderer.sendSync("valida-play-os",os),
   processUSB: (disp,metodo,pswd,callback) => ipcRenderer.sendSync("process_usb",[disp,metodo,pswd,callback]),
+  getNameDisk:(name) => ipcRenderer.sendSync("get_name_disk",[name]),
+  crearDisk:(disk,size) => ipcRenderer.send("crear_disk",[disk,size]),
 });

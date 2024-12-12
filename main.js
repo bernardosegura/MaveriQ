@@ -74,6 +74,15 @@ ipcMain.on('process_usb', (event, args) => {
   event.returnValue = processUSB(args[0], args[1], args[2], args[3]);
 });
 
+ipcMain.on('get_name_disk', (event, args) => {
+  event.returnValue = getNameDisk(args[0]);
+});
+
+ipcMain.on('crear_disk', (event, args) => {
+  crearDisk(args[0],args[1]);
+});
+
+
 function processUSB(disp, metodo,pswd,callback) {
   let fileConnect = disp.replace(/_/g,"/").replace(disp.split("_")[0],"");
   let address = {bus:disp.split("_")[0].split(":")[0], dev: disp.split("_")[0].split(":")[1]};
@@ -134,4 +143,36 @@ function validatePassword(usr, pswd) {
 function playOS(cmd) {
     const { exec } = require('child_process');
     exec('echo "'+ cmd[0] +'" | sudo -E -S ' + cmd[1] + '&>/dev/null', (error, stdout, stderr) => {});
+}
+
+function getNameDisk(name){
+  const fs = require('fs');
+  let idSSD = 1;
+  let newName = name;
+
+  if(!fs.existsSync("disks"))
+    fs.mkdirSync("disks");
+  
+  while(fs.existsSync("disks/"+newName+".qcow2")){
+    newName = name + idSSD; 
+    idSSD++;
+  }
+
+  return newName+".qcow2";
+}
+
+function crearDisk(disk,size){
+  const { exec } = require('child_process');
+  exec('qemu-img create -f qcow2 disks/' + disk + " " + size, (error, stdout, stderr) => {
+    if(stderr){
+      log(stderr.replace("\n"," "));
+    }
+    if(stdout){
+      log(stdout.replace("\n"," "));
+    }
+  });
+}
+
+function log(mensaje){
+  win.webContents.executeJavaScript("log('"+mensaje+"');");
 }
