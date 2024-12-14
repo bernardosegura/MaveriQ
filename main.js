@@ -7,7 +7,7 @@ function createWindow() {
   const path = require('path');
   win = new BrowserWindow({
     width: 933,
-    height: (291+180+62),
+    height: (291+180+62+73),
     webPreferences: {
       nodeIntegration: true,
       preload: path.join(__dirname, 'preload.js'),
@@ -165,10 +165,10 @@ function crearDisk(disk,size){
   const { exec } = require('child_process');
   exec('qemu-img create -f qcow2 disks/' + disk + " " + size, (error, stdout, stderr) => {
     if(stderr){
-      log(stderr.replace("\n"," "));
+      log(stderr.replace("\n"," ").replace(/'/g,"\\'"));
     }
     if(stdout){
-      log(stdout.replace("\n"," "));
+      log(stdout.replace("\n"," ").replace(/'/g,"\\'"));
     }
   });
 }
