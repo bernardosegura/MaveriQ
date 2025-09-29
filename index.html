@@ -192,12 +192,17 @@ td {
         <td style="border-color:#FFF">
             <table>
                 <tr>
-                  <td>
+                  <td width="20%">
                     <button class="btn btn-add" id="crearDisco" onclick="cdd()" title="Crear Disco Dinámico" style="padding: 5px 20px;">
                             <img style="width: 25px; height: 25px; top: 2px; position: relative;" src='data:image/png;base64,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'/>
                         </button>
                   </td>
-                  <td colspan="4">
+                  <td width="20%">
+                    <button class="btn btn-gris" id="btn_swtpm" onclick="startSFTPM();" title="TPM por Software" style="padding: 5px 20px;">
+                            <img style="width: 25px; height: 25px; top: 2px; position: relative;" src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEwAAAA9CAYAAAAH6Y9PAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw1AUhU9TpSoVBTuIKGSoTnZREcdSxSJYKG2FVh1MXvoHTRqSFBdHwbXg4M9i1cHFWVcHV0EQ/AFxF5wUXaTE+5JCixgfPN7Hee8c7rsXEBoVpppdUUDVLCMVj4nZ3KoYeEUvxjAIoFtipp5IL2bgub7u4ePnXYRneb/7c/UreZMBPpE4ynTDIt4gnt20dM77xCFWkhTic+JJgwokfuS67PIb56LDAs8MGZnUPHGIWCx2sNzBrGSoxDPEYUXVKF/Iuqxw3uKsVmqsVSf/YTCvraS5TnsUcSwhgSREyKihjAosROjUSDGRovuYh3/E8SfJJZOrDEaOBVShQnL84DP43VuzMD3lJgVjNJYX2/4YBwK7QLNu29/Htt08AfzPwJXW9lcbwNwn6fW2Fj4CBraBi+u2Ju8BlzvA8JMuGZIj+WkLhQLwfkZjygFDt0Dfmtu31j1OH4AM9Wr5Bjg4BCaKlL3u8e+ezr79+6bVvx9USHKaE0RSXwAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+kJHRAZGbGxr3EAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAABmUlEQVR42u2aQa6DMAxEk6jchYP8w3EuroDENWCLWaSbVkIVv8Wu3Tgws2sVQvLwOA4k5pxzUFSMMW5/c/t/vf6d3vXN6YfT9y0403ag305aG1YIIaTgWPkh7Ul/I9fArCcvuVcVwKTQuq770x5HlAxSIzHv9fEJimRB4ebBqiIsPuQ5iquxpNSW2vmvKmAeHkYCDESYKVB3wPq+N9vuaOh2BpscvZ8G8GosaRVd3Ad3yhz2H9xXOJKdQLFK3wLAtv2RsUuuT94jRWpFLmT3Sb/0iid1D+owFK62tkSEMdNEAgREmCnYdBUYRIQI42ieZxXbXgbYNE27/3Mj7zLA2rbdjaJhGOrYS2qsXty+99pbbaEg6EQiouexikxErqwRvQzkaM4o/ZYjeoT16UiAh48hRWEdPdb0bDeOY75khEkOz5U+cOeicOVMvLQdU+12BrADWtcVEcbRsiwAVosADMAAzJWK1TRElJumEdVWlu/YXAH7Rd1kDe1UlvxFfYYcBmAABmAABmAQgAEYgAEYgEEABmAABmBV6w7m5Q3b7rhc7QAAAABJRU5ErkJggg=='/>
+                        </button>
+                  </td>
+                  <td colspan="3">
                     <button class="btn btn-iW11" id="btn_installW11" onclick="openDialog('dialog-installW11');" title="" style="padding: 5px 20px;">
                             <img style="width: 25px; height: 25px; top: 2px; position: relative;" src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACUAAAAlCAYAAADFniADAAABhWlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9bpVUqDlaQ4pChOohdVMSxVLEIFkpboVUHk0u/oElDkuLiKLgWHPxYrDq4OOvq4CoIgh8g7oKToouU+L+k0CLGg+N+vLv3uHsHeJtVphg9MUBRTT2diAu5/Krgf0UfwhjGBAIiM7RkZjEL1/F1Dw9f76I8y/3cn2NALhgM8AjEMabpJvEG8eymqXHeJw6xsigTnxNP6nRB4keuSw6/cS7Z7OWZIT2bnicOEQulLpa6mJV1hXiGOCIrKuV7cw7LnLc4K9U6a9+TvzBYUFcyXKc5igSWkEQKAiTUUUEVJqK0qqQYSNN+3MUftv0pcknkqoCRYwE1KBBtP/gf/O7WKE5POUnBOND7YlkfY4B/F2g1LOv72LJaJ4DvGbhSO/5aE5j7JL3R0SJHwOA2cHHd0aQ94HIHGHnSRF20JR9Nb7EIvJ/RN+WBoVugf83prb2P0wcgS10t3wAHh8B4ibLXXd4d6O7t3zPt/n4AyZFyyW2S8TIAAAAGYktHRADcABoAFckq62oAAAAJcEhZcwAALiMAAC4jAXilP3YAAAAHdElNRQfpCRoVLToz4NemAAAAGXRFWHRDb21tZW50AENyZWF0ZWQgd2l0aCBHSU1QV4EOFwAAAERJREFUWMPt1sEJgAAQA8E9++/5bEFQRGG2gDDPzO5uN5uZqXpiq+rog0FBQUFBQUFB/Qily0/WHYaCgoKCgoKCgnqlExm+ED3Lv+fhAAAAAElFTkSuQmCC'/>
                         </button>
@@ -495,6 +500,7 @@ td {
       let setqemuimg = window.electronAPI.checkqemuimg();
 
       if(!setqemuimg){
+          log("Se requiere qemu-img.");
           document.getElementById('dialog-alert-mensaje').innerHTML = "Se requiere <b>qemu-img</b>.";
           openDialog("dialog-alert");
           document.getElementById('dialog-alert-btnOk').innerHTML = "Aceptar";
@@ -506,17 +512,37 @@ td {
         } 
     }
 
-    function installW11(){
-      let quemuOS = window.electronAPI.getOS();
-
-      for (var x = 0; x < quemuOS.length; x++) {
-        if(quemuOS[x].type == "installW11"){
-          log("Se detecto en posicion " + x + " con un nombre de " + quemuOS[x].os);
+    function startSFTPM(){
+        if(window.electronAPI.checkswtpm()){
+          window.electronAPI.createSWTPM("/tmp/swtpm-sock");
+        }else{
+          log("Se requiere swtpm instalado.");
+          document.getElementById('dialog-alert-mensaje').innerHTML = "Se requiere <b>swtpm</b>.";
+          openDialog("dialog-alert");
         }
-            
-      }
-      
     }
+
+    function installW11(){
+      if(document.getElementById("txt_iso_w11").value == ""){
+        log("Se requiere la iso de Window 11.");
+        document.getElementById('dialog-alert-mensaje').innerHTML = "Se requiere la iso de <b>Window 11</b>.";
+        openDialog("dialog-alert");
+      }else{
+        let quemuOS = window.electronAPI.getOS();
+        let wInstall = {};
+        let tpm = (window.electronAPI.isSWTPM("/tmp/swtpm-sock"))?"/tmp/swtpm-sock":"";
+      
+        for (var x = 0; x < quemuOS.length; x++) {
+          if(quemuOS[x].type == "installW11")
+            wInstall = quemuOS[x];
+        }
+
+        log("Windows es: "+ wInstall.os +" y tiene tpm: " + tpm);
+
+      }
+    }
+
+    
 	</script>
   <div id="dialog-installW11" class="dialog-container">
     <div id="dlg_installW11_title" class="dialog-title" style="text-align: center;"></div>
@@ -531,13 +557,6 @@ td {
       <div>
         <label for="txt_iso_w11">Imagen iso del sistema</lable>
         <input id="txt_iso_w11" type="text" placeholder="" />
-      </div>
-      <div>
-        <br>
-      </div>
-      <div>
-        <label for="txt_tpm_sock">Nombre de tpm virtual crea desde un boton</lable>
-        <input id="txt_tpm_sock" type="text" placeholder="debe estar creado en /tmp/" />
       </div>
     </div>
     <div class="dialog-buttons" style="text-align: right;">

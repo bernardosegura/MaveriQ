@@ -82,6 +82,10 @@ ipcMain.on('crear_disk', (event, args) => {
   crearDisk(args[0],args[1]);
 });
 
+ipcMain.on('create-swtpm', (event, args) => {
+  createSWTPM(args[0]);
+});
+
 
 function processUSB(disp, metodo,pswd,callback) {
   let fileConnect = disp.replace(/_/g,"/").replace(disp.split("_")[0],"");
@@ -175,4 +179,25 @@ function crearDisk(disk,size){
 
 function log(mensaje){
   win.webContents.executeJavaScript("log('"+mensaje+"');");
+}
+
+function createSWTPM(sock) {
+  const fs = require('fs');
+  const { exec } = require('child_process');
+
+  if(!fs.existsSync(sock)){
+    let nSock = sock.split("/")[sock.split("/").length-1];
+    let path = sock.substring(0,(sock.length-nSock.length));
+    let cmd = "swtpm socket --tpmstate dir="+path+" --ctrl type=unixio,path="+sock+" --tpm2";
+    log("Creando socket: "+ sock +" tipo: tpm2");
+    exec(cmd, (error, stdout, stderr) => {
+      if(stderr){
+        log(stderr.replace("\n"," ").replace(/'/g,"\\'"));
+      }
+      if(stdout){
+        log(stdout.replace("\n"," ").replace(/'/g,"\\'"));
+      }
+    });
+  }else
+    log("Ya se encuentra en ejecución swptm en el socket: "+ sock);
 }
