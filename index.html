@@ -203,7 +203,7 @@ td {
                         </button>
                   </td>
                   <td colspan="3">
-                    <button class="btn btn-iW11" id="btn_installW11" onclick="openDialog('dialog-installW11');" title="" style="padding: 5px 20px;">
+                    <button class="btn btn-iW11" id="btn_installW11" onclick="openDialog('dialog-installW11'); document.getElementById('txt_disk_w11').focus();" onmouseover=" updateBtniW11('on');" title="" style="padding: 5px 20px;">
                             <img style="width: 25px; height: 25px; top: 2px; position: relative;" src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACUAAAAlCAYAAADFniADAAABhWlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9bpVUqDlaQ4pChOohdVMSxVLEIFkpboVUHk0u/oElDkuLiKLgWHPxYrDq4OOvq4CoIgh8g7oKToouU+L+k0CLGg+N+vLv3uHsHeJtVphg9MUBRTT2diAu5/Krgf0UfwhjGBAIiM7RkZjEL1/F1Dw9f76I8y/3cn2NALhgM8AjEMabpJvEG8eymqXHeJw6xsigTnxNP6nRB4keuSw6/cS7Z7OWZIT2bnicOEQulLpa6mJV1hXiGOCIrKuV7cw7LnLc4K9U6a9+TvzBYUFcyXKc5igSWkEQKAiTUUUEVJqK0qqQYSNN+3MUftv0pcknkqoCRYwE1KBBtP/gf/O7WKE5POUnBOND7YlkfY4B/F2g1LOv72LJaJ4DvGbhSO/5aE5j7JL3R0SJHwOA2cHHd0aQ94HIHGHnSRF20JR9Nb7EIvJ/RN+WBoVugf83prb2P0wcgS10t3wAHh8B4ibLXXd4d6O7t3zPt/n4AyZFyyW2S8TIAAAAGYktHRADcABoAFckq62oAAAAJcEhZcwAALiMAAC4jAXilP3YAAAAHdElNRQfpCRoVLToz4NemAAAAGXRFWHRDb21tZW50AENyZWF0ZWQgd2l0aCBHSU1QV4EOFwAAAERJREFUWMPt1sEJgAAQA8E9++/5bEFQRGG2gDDPzO5uN5uZqXpiq+rog0FBQUFBQUFB/Qily0/WHYaCgoKCgoKCgnqlExm+ED3Lv+fhAAAAAElFTkSuQmCC'/>
                         </button>
                   </td>
@@ -285,6 +285,8 @@ td {
 	</div>
 	<script type="text/javascript">
     let deviceUSB = [];		// Función para abrir el diálogo
+    let sock_tpm = "/tmp/swtpm-sock";
+    let sock_w11Install = "";
 		function openDialog(id) {
 		  document.getElementById(id).style.display = 'block';
 		  document.getElementById('overlay').style.display = 'block';
@@ -342,6 +344,7 @@ td {
           }
         }
       }
+      updateBtniW11("start");
     }
 
     function uptUSBDev(){
@@ -448,7 +451,7 @@ td {
         }else{
           let socketSO = window.electronAPI.getOS()[document.getElementById("SisOpe").value].socket;
           if(window.electronAPI.validaPlayOS(socketSO)){
-            let disp = deviceUSB[document.getElementById("dev_usb").value].bus+':'+deviceUSB[document.getElementById("dev_usb").value].addr+socketSO.replace(/\//g,"_");
+            let disp = deviceUSB[document.getElementById("dev_usb").value].bus+':'+deviceUSB[document.getElementById("dev_usb").value].addr+"_"+socketSO;//socketSO.replace(/\//g,"_");
             let xhci = (document.getElementById("dev_xhci").checked)?"on":"off";
             window.electronAPI.processUSB(disp,"add:"+xhci,document.getElementById('txt_pws').value,"respUSB");
           }else{
@@ -476,7 +479,7 @@ td {
         }else{
           let socketSO = window.electronAPI.getOS()[document.getElementById("SisOpe").value].socket;
           if(window.electronAPI.validaPlayOS(socketSO)){
-            let disp = deviceUSB[document.getElementById("dev_usb").value].bus+':'+deviceUSB[document.getElementById("dev_usb").value].addr+socketSO.replace(/\//g,"_");
+            let disp = deviceUSB[document.getElementById("dev_usb").value].bus+':'+deviceUSB[document.getElementById("dev_usb").value].addr+"_"+socketSO;//socketSO.replace(/\//g,"_");
             window.electronAPI.processUSB(disp,"del:xhci",document.getElementById('txt_pws').value,"respUSB");
           }else{
             document.getElementById('dialog-alert-mensaje').innerHTML = "Debe estar en ejecucion el <b>Sistema Operativo</b>.";
@@ -514,7 +517,11 @@ td {
 
     function startSFTPM(){
         if(window.electronAPI.checkswtpm()){
-          window.electronAPI.createSWTPM("/tmp/swtpm-sock");
+          window.electronAPI.createSWTPM(sock_tpm);
+          if(window.electronAPI.fExists(sock_tpm)){
+            document.getElementById('dialog-alert-mensaje').innerHTML = "Ya se encuentra en ejecución swptm en el socket: <b>"+sock_tpm+"</b>.";
+            openDialog("dialog-alert");
+          }
         }else{
           log("Se requiere swtpm instalado.");
           document.getElementById('dialog-alert-mensaje').innerHTML = "Se requiere <b>swtpm</b>.";
@@ -523,25 +530,85 @@ td {
     }
 
     function installW11(){
-      if(document.getElementById("txt_iso_w11").value == ""){
-        log("Se requiere la iso de Window 11.");
-        document.getElementById('dialog-alert-mensaje').innerHTML = "Se requiere la iso de <b>Window 11</b>.";
+
+      if(!window.electronAPI.fExists("disks/" + document.getElementById("txt_disk_w11").value + ".qcow2")){
+        log("Se requiere el nombre del disco virtual en disks/ para la instalación.");
+        document.getElementById('dialog-alert-mensaje').innerHTML = "Se requiere el nombre del <b>disco virtual en disks/</b> para la instalación.";
         openDialog("dialog-alert");
       }else{
-        let quemuOS = window.electronAPI.getOS();
-        let wInstall = {};
-        let tpm = (window.electronAPI.isSWTPM("/tmp/swtpm-sock"))?"/tmp/swtpm-sock":"";
-      
-        for (var x = 0; x < quemuOS.length; x++) {
-          if(quemuOS[x].type == "installW11")
-            wInstall = quemuOS[x];
+          if(!window.electronAPI.fExists(document.getElementById("txt_iso_w11").value)){
+          log("Se requiere la iso de Window 11.");
+          document.getElementById('dialog-alert-mensaje').innerHTML = "Se requiere la iso de <b>Window 11</b>.";
+          openDialog("dialog-alert");
+        }else{
+          let quemuOS = window.electronAPI.getOS();
+          let wInstall = {};
+          let tpm = (window.electronAPI.isSWTPM(sock_tpm))?sock_tpm:"";
+          let cmd = "";
+          let swtpm = "-chardev socket,id=chrtpm,path=" + tpm + " -tpmdev emulator,id=tpm0,chardev=chrtpm -device tpm-tis,tpmdev=tpm0";
+
+          closeDialog('dialog-installW11');
+
+          if(tpm == "")
+             swtpm = "";
+
+          for (var x = 0; x < quemuOS.length; x++) {
+            if(quemuOS[x].type == "installW11")
+              wInstall = quemuOS[x];
+          }
+
+          for (var i = 0; i < wInstall.cmd.length; i++) {
+
+            cmd += wInstall.cmd[i] + " ";
+
+            cmd = cmd.replace("<-(ram)->",wInstall.ram);
+            cmd = cmd.replace("<-(mcore)->",wInstall.mcore);
+            if(wInstall.ncore != "")
+              cmd = cmd.replace("<-(ncore)->",",cores="+wInstall.ncore);
+            else
+              cmd = cmd.replace("<-(ncore)->",wInstall.ncore);
+            cmd = cmd.replace("<-(os)->",wInstall.os);
+            cmd = cmd.replace("<-(socket)->",wInstall.socket);
+
+            cmd = cmd.replace("<-(ssd)->",document.getElementById("txt_disk_w11").value + ".qcow2");
+            cmd = cmd.replace("<-(isowin)->",document.getElementById("txt_iso_w11").value); 
+          
+          }
+          cmd += swtpm;
+          window.electronAPI.playOS(document.getElementById('txt_pws').value,cmd);
+          log("Se ejecuto " + wInstall.os + " (Max CPUs "+ wInstall.mcore + ", Core "+ ((wInstall.ncore != "")?wInstall.ncore:wInstall.mcore) + ", Ram " + wInstall.ram + " GB)");
+          document.getElementById("btn_installW11").disabled = true;
+          document.getElementById("btn_installW11").classList.remove("btn-iW11");
+          document.getElementById("btn_installW11").classList.add("btn-stop");
+          sock_w11Install = wInstall.socket;
         }
-
-        log("Windows es: "+ wInstall.os +" y tiene tpm: " + tpm);
-
       }
     }
 
+    function updateBtniW11(tipo){
+      if(tipo == "on"){
+          if(sock_w11Install != ""){
+            if(window.electronAPI.validaPlayOS(sock_w11Install)){
+              document.getElementById("btn_installW11").disabled = true;
+              document.getElementById("btn_installW11").classList.remove("btn-iW11");
+              document.getElementById("btn_installW11").classList.add("btn-stop");
+            }else{
+              document.getElementById("btn_installW11").disabled = false;
+              document.getElementById("btn_installW11").classList.add("btn-iW11");
+              document.getElementById("btn_installW11").classList.remove("btn-stop");
+              sock_w11Install = "";
+            }
+        }
+      }else{
+        let quemuOS = window.electronAPI.getOS();
+        for (var x = 0; x < quemuOS.length; x++) {
+            if(quemuOS[x].type == "installW11")
+                sock_w11Install = quemuOS[x].socket;
+          }
+         updateBtniW11("on");
+      }
+      
+    }
     
 	</script>
   <div id="dialog-installW11" class="dialog-container">
@@ -560,7 +627,7 @@ td {
       </div>
     </div>
     <div class="dialog-buttons" style="text-align: right;">
-      <button id="dialog-installW11-btnOk" class="btn btn-primary" onclick="closeDialog('dialog-installW11'); installW11();">Instalar</button>
+      <button id="dialog-installW11-btnOk" class="btn btn-primary" onclick="installW11();">Instalar</button>
       <button id="dialog-installW11-btnCancel" class="btn btn-secondary" onclick="closeDialog('dialog-installW11');">Cancelar</button>
     </div>
   </div>
@@ -569,11 +636,11 @@ td {
     <div id="dlg_msg_title" class="dialog-title" style="text-align: center;">¡Aviso!</div>
     <div class="dialog-content" id="dialog-msg-mensaje">
       <div>
-        <label for="txt_nombre"><b>El disco que vas a crear es dinámico. Esto significa que solo ocupará el espacio real de los archivos que guardes en él, no el tamaño máximo que le asignes desde el inicio.</b></lable>
+        <label><b>El disco que vas a crear es dinámico. Esto significa que solo ocupará el espacio real de los archivos que guardes en él, no el tamaño máximo que le asignes desde el inicio.</b></lable>
       </div>
     </div>
     <div class="dialog-buttons" style="text-align: right;">
-      <button id="dialog-msg-btnCancel" class="btn btn-secondary" onclick="closeDialog('dialog-msg'); openDialog('dialog-cdd');">Aceptar</button>
+      <button id="dialog-msg-btnCancel" class="btn btn-secondary" onclick="closeDialog('dialog-msg'); openDialog('dialog-cdd'); document.getElementById('txt_nombre').focus();">Aceptar</button>
     </div>
   </div>
   <div id="dialog-cdd" class="dialog-container">
@@ -581,7 +648,7 @@ td {
     <div class="dialog-content" id="dialog-cdd-mensaje">
       <div>
         <label for="txt_nombre">Nombre del disco &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</lable>
-        <input id="txt_nombre" type="text" placeholder="ssd" />
+        <input id="txt_nombre" type="text" placeholder="ssd"/>
       </div>
       <div>
         <br>

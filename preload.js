@@ -26,9 +26,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   playOS: (pwd,cmd) => ipcRenderer.send("play-os",[pwd,cmd]),
   validaPlayOS: (os) => ipcRenderer.sendSync("valida-play-os",os),
   processUSB: (disp,metodo,pswd,callback) => ipcRenderer.sendSync("process_usb",[disp,metodo,pswd,callback]),
-  getNameDisk:(name) => ipcRenderer.sendSync("get_name_disk",[name]),
+  getNameDisk:(name) => ipcRenderer.sendSync("get_name_disk",name),
   crearDisk:(disk,size) => ipcRenderer.send("crear_disk",[disk,size]),
   checkswtpm: () => (execSync("command -v swtpm | wc -l").toString() == 1)?true:false,
-  createSWTPM: (sock) => ipcRenderer.send("create-swtpm",[sock]),
+  createSWTPM: (sock) => ipcRenderer.send("create-swtpm",sock),
   isSWTPM: (sock) => (require('fs').existsSync(sock))?true:false,
+  fExists: (file) => (file != "")?((require('fs').existsSync(file))?true:false):false,
 });

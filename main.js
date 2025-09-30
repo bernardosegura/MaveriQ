@@ -67,23 +67,23 @@ ipcMain.on('play-os', (event, args) => {
 });
 
 ipcMain.on('valida-play-os', (event, arg) => {
-  event.returnValue = require('fs').existsSync(arg);
+  event.returnValue = require('fs').existsSync("/tmp/"+arg);
 });
 
 ipcMain.on('process_usb', (event, args) => {
   event.returnValue = processUSB(args[0], args[1], args[2], args[3]);
 });
 
-ipcMain.on('get_name_disk', (event, args) => {
-  event.returnValue = getNameDisk(args[0]);
+ipcMain.on('get_name_disk', (event, name) => {
+  event.returnValue = getNameDisk(name);
 });
 
 ipcMain.on('crear_disk', (event, args) => {
   crearDisk(args[0],args[1]);
 });
 
-ipcMain.on('create-swtpm', (event, args) => {
-  createSWTPM(args[0]);
+ipcMain.on('create-swtpm', (event, sock) => {
+  createSWTPM(sock);
 });
 
 
