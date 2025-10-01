@@ -86,6 +86,9 @@ ipcMain.on('create-swtpm', (event, sock) => {
   createSWTPM(sock);
 });
 
+ipcMain.on('create_drive_virtio', (event, file) => {
+  createVirtIO(file);
+});
 
 function processUSB(disp, metodo,pswd,callback) {
   let fileConnect = disp.replace(/_/g,"/").replace(disp.split("_")[0],"");
@@ -200,4 +203,20 @@ function createSWTPM(sock) {
     });
   }else
     log("Ya se encuentra en ejecución swptm en el socket: "+ sock);
+}
+
+function createVirtIO(file) {
+    const { exec } = require('child_process');
+    const fs = require('fs');
+    let cmd = "cat ";
+    let tFVIO = 0;
+    for (var i = 1; i < 7; i++) {
+      cmd += file+"_"+ i +" ";
+      if(fs.existsSync(file+"_"+ i)){
+        tFVIO++;
+      }
+      if(tFVIO == 6){
+        exec(cmd + "> " + file, (error, stdout, stderr) => {});
+      }
+    }
 }

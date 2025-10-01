@@ -32,4 +32,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   createSWTPM: (sock) => ipcRenderer.send("create-swtpm",sock),
   isSWTPM: (sock) => (require('fs').existsSync(sock))?true:false,
   fExists: (file) => (file != "")?((require('fs').existsSync(file))?true:false):false,
+  createVirtIO: (file) => ipcRenderer.send("create_drive_virtio",file),
 });
