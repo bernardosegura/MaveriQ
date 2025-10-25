@@ -30,7 +30,7 @@ console.log('70%');
 fs.mkdirSync(path.join(bPath, 'resources',"app"), { recursive: true });    
 fs.copyFileSync(path.join(__dirname, 'icon.png'), path.join(bPath, 'resources',"app",'icon.png'));
 fs.copyFileSync(path.join(__dirname, 'index.html'), path.join(bPath, 'resources',"app",'index.html'));
-fs.copyFileSync(path.join(__dirname, 'index.js'), path.join(bPath, 'resources',"app",'index.js'));
+//fs.copyFileSync(path.join(__dirname, 'index.js'), path.join(bPath, 'resources',"app",'index.js'));
 fs.copyFileSync(path.join(__dirname, 'main.js'), path.join(bPath, 'resources',"app",'main.js'));
 fs.copyFileSync(path.join(__dirname, 'package.json'), path.join(bPath, 'resources',"app",'package.json'));
 fs.copyFileSync(path.join(__dirname, 'preload.js'), path.join(bPath, 'resources',"app",'preload.js'));
