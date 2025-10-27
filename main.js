@@ -1,6 +1,24 @@
-const { app,ipcMain,BrowserWindow, globalShortcut } = require('electron');
+const { app,ipcMain,BrowserWindow, globalShortcut, Menu } = require('electron');
 let win = null;
 let isdev = (__dirname.indexOf("app.asar") === -1)?true:false; 
+
+const menu = [
+  {
+    label: 'Limpiar Bios',
+    submenu: [
+      {
+        label: 'X64',
+        accelerator: 'CmdOrCtrl+L', // Atajo de teclado
+        click: (menuItem, browserWindow, event) => {
+          // 'browserWindow' es la ventana que está activa
+          console.log('¡Se hizo clic en Nuevo Limpiar bios x64!');
+          log('¡Se hizo clic en Nuevo Limpiar bios x64!');
+          // Envía un mensaje a la ventana de renderizado
+          //browserWindow.webContents.send('menu-action', 'new-file');
+        }
+      }
+    ]
+  }];
 
 
 function createWindow() {
@@ -14,7 +32,7 @@ function createWindow() {
       contextIsolation: true,
       //enableRemoteModule: false,
     },
-    autoHideMenuBar: true,
+    autoHideMenuBar: false,
     resizable: isdev,
     //maximizable: false,
     icon: path.join(__dirname, 'icon.png')
@@ -24,7 +42,8 @@ function createWindow() {
   if(!isdev)
     globalShortcut.register('CommandOrControl+Shift+I', () => {
           return false;
-      });   
+      }); 
+  Menu.setApplicationMenu(Menu.buildFromTemplate(menu));     
 }
 
 app.whenReady().then(createWindow);     

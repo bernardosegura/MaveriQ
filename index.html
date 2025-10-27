@@ -429,6 +429,7 @@ td {
           cmd = cmd.replace("<-(ssd)->",qOS.ssd);
           cmd = cmd.replace("<-(os)->",qOS.os);
           cmd = cmd.replace("<-(socket)->",qOS.socket); 
+          cmd = (!qOS.arq)?cmd.replace("<-(arq)->/",""):cmd.replace("<-(arq)->/",qOS.arq);
         
         }
 
@@ -582,6 +583,7 @@ td {
               cmd = cmd.replace("<-(ncore)->",wInstall.ncore);
             cmd = cmd.replace("<-(os)->",wInstall.os);
             cmd = cmd.replace("<-(socket)->",wInstall.socket);
+            cmd = (!wInstall.arq)?cmd.replace("<-(arq)->/",""):cmd.replace("<-(arq)->/",wInstall.arq);
 
             cmd = cmd.replace("<-(ssd)->",document.getElementById("txt_disk_w11").value + ".qcow2");
             cmd = cmd.replace("<-(isowin)->",document.getElementById("txt_iso_w11").value); 
