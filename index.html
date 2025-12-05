@@ -357,6 +357,10 @@ td {
       for (var u = 0; u < deviceUSB.length; u++) {
         document.getElementById("dev_usb").innerHTML += "<option value='"+u+"'>"+deviceUSB[u].desc+"</option>";
       }
+
+      document.getElementById('dialog-alert-mensaje').innerHTML = "Listado USB Actualizado"; 
+      openDialog('dialog-alert');  
+      log("Listado USB Actualizado");
     }
 
     function loadInf(){

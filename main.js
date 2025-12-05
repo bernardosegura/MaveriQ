@@ -10,16 +10,56 @@ const menu = [
         label: 'X64',
         accelerator: 'CmdOrCtrl+L', // Atajo de teclado
         click: (menuItem, browserWindow, event) => {
-          // 'browserWindow' es la ventana que está activa
-          console.log('¡Se hizo clic en Nuevo Limpiar bios x64!');
-          log('¡Se hizo clic en Nuevo Limpiar bios x64!');
-          // Envía un mensaje a la ventana de renderizado
-          //browserWindow.webContents.send('menu-action', 'new-file');
+          const fs = require('fs');
+          log('Validando datos de bios x64');
+          if(fs.existsSync("bios/x64/OVMF.fd")){
+            if(fs.existsSync("bios/x64/OVMF_VARS.fd")){
+              fs.unlinkSync('bios/x64/OVMF_VARS.fd');
+            }
+            fs.copyFileSync('bios/x64/OVMF.fd', 'bios/x64/OVMF_VARS.fd');
+            msgBox('¡Proceso finalizado con éxito!');
+            log('¡Proceso finalizado con éxito!'); 
+          }else{
+            msgBox('¡Se requiere <b>OVMF_VARS.fd</b> para <b>bios x64</b>!');
+            log('¡Se requiere OVMF_VARS.fd para bios x64!');
+          }
         }
       }
+
+    ]
+  },
+{
+    label: 'USB',
+    submenu: [
+      {
+        label: 'Conectar...',
+        accelerator: 'CmdOrCtrl+W', // Atajo de teclado
+        click: (menuItem, browserWindow, event) => {
+          win.webContents.executeJavaScript("conectUSB();");
+        }
+      },
+      {
+        label: 'Desconectar...',
+        accelerator: 'CmdOrCtrl+Q', // Atajo de teclado
+        click: (menuItem, browserWindow, event) => {
+          win.webContents.executeJavaScript("desconectUSB();");
+        }
+      },
+      {
+        label: 'Actualizar...',
+        accelerator: 'CmdOrCtrl+U', // Atajo de teclado
+        click: (menuItem, browserWindow, event) => {
+          win.webContents.executeJavaScript("uptUSBDev();");
+
+        }
+      },
     ]
   }];
 
+function msgBox(message){
+  let msg = "document.getElementById('dialog-alert-mensaje').innerHTML = \""+message+"\"; openDialog('dialog-alert');";  
+  win.webContents.executeJavaScript(msg);
+}
 
 function createWindow() {
   const path = require('path');
@@ -110,7 +150,7 @@ ipcMain.on('create_drive_virtio', (event, file) => {
 });
 
 function processUSB(disp, metodo,pswd,callback) {
-  let fileConnect = disp.replace(/_/g,"/").replace(disp.split("_")[0],"");
+  let fileConnect = disp.replace(/_/g,"/tmp/").replace(disp.split("_")[0],"");
   let address = {bus:disp.split("_")[0].split(":")[0], dev: disp.split("_")[0].split(":")[1]};
   let name = "usb"+disp.split("_")[0].replace(":","");
   const net = require('net');
@@ -191,6 +231,7 @@ function crearDisk(disk,size){
   const { exec } = require('child_process');
   exec('qemu-img create -f qcow2 disks/' + disk + " " + size, (error, stdout, stderr) => {
     if(stderr){
+      msgBox("<b>Error</b>: favor de revisar log en <b>Reporte de Actividades</b>.");
       log(stderr.replace("\n"," ").replace(/'/g,"\\'"));
     }
     if(stdout){
@@ -214,14 +255,17 @@ function createSWTPM(sock) {
     log("Creando socket: "+ sock +" tipo: tpm2");
     exec(cmd, (error, stdout, stderr) => {
       if(stderr){
+        msgBox("<b>Error</b>: favor de revisar log en <b>Reporte de Actividades</b>.");
         log(stderr.replace("\n"," ").replace(/'/g,"\\'"));
       }
       if(stdout){
         log(stdout.replace("\n"," ").replace(/'/g,"\\'"));
       }
     });
-  }else
+  }else{
+    msgBox("Ya se encuentra en ejecución swptm en el socket: "+ sock);
     log("Ya se encuentra en ejecución swptm en el socket: "+ sock);
+  }
 }
 
 function createVirtIO(file) {
