@@ -17,11 +17,11 @@ const menu = [
               fs.unlinkSync('bios/x64/OVMF_VARS.fd');
             }
             fs.copyFileSync('bios/x64/OVMF.fd', 'bios/x64/OVMF_VARS.fd');
-            msgBox('¡Proceso finalizado con éxito!');
-            log('¡Proceso finalizado con éxito!'); 
+            msgBox('Proceso finalizado con éxito');
+            log('Proceso finalizado con éxito'); 
           }else{
-            msgBox('¡Se requiere <b>OVMF_VARS.fd</b> para <b>bios x64</b>!');
-            log('¡Se requiere OVMF_VARS.fd para bios x64!');
+            msgBox('Se requiere <b>OVMF_VARS.fd</b> para <b>bios x64</b>');
+            log('Se requiere OVMF_VARS.fd para bios x64');
           }
         }
       }
@@ -208,7 +208,14 @@ function validatePassword(usr, pswd) {
 
 function playOS(cmd) {
     const { exec } = require('child_process');
-    exec('echo "'+ cmd[0] +'" | sudo -E -S ' + cmd[1] + '&>/dev/null', (error, stdout, stderr) => {});
+    exec('echo "'+ cmd[0] +'" | sudo -E -S ' + cmd[1] + '&>/dev/null', (error, stdout, stderr) => {
+
+      if(stderr){
+        msgBox("<b>Error</b>: favor de revisar log en <b>Reporte de Actividades</b>.");
+        log(stderr.replace(/\n/g,"</br>").replace(/'/g,"\\'"));
+        win.webContents.executeJavaScript('document.getElementById("SisOpe").value = -1; loadInf();'); 
+      }
+    });
 }
 
 function getNameDisk(name){
@@ -232,7 +239,7 @@ function crearDisk(disk,size){
   exec('qemu-img create -f qcow2 disks/' + disk + " " + size, (error, stdout, stderr) => {
     if(stderr){
       msgBox("<b>Error</b>: favor de revisar log en <b>Reporte de Actividades</b>.");
-      log(stderr.replace("\n"," ").replace(/'/g,"\\'"));
+      log(stderr.replace(/\n/g,"</br>").replace(/'/g,"\\'"));
     }
     if(stdout){
       log(stdout.replace("\n"," ").replace(/'/g,"\\'"));
@@ -256,10 +263,10 @@ function createSWTPM(sock) {
     exec(cmd, (error, stdout, stderr) => {
       if(stderr){
         msgBox("<b>Error</b>: favor de revisar log en <b>Reporte de Actividades</b>.");
-        log(stderr.replace("\n"," ").replace(/'/g,"\\'"));
+        log(stderr.replace(/\n/g,"</br>").replace(/'/g,"\\'"));
       }
       if(stdout){
-        log(stdout.replace("\n"," ").replace(/'/g,"\\'"));
+        log(stdout.replace(/\n/g,"</br>").replace(/'/g,"\\'"));
       }
     });
   }else{

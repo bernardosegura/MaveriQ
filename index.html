@@ -287,7 +287,7 @@ td {
     let deviceUSB = [];		// Función para abrir el diálogo
     let sock_tpm = "/tmp/swtpm-sock";
     let sock_w11Install = "";
-    let fVirtIO = "drives/virtio-win.iso";
+    let fVirtIO = "drivers/virtio-win.iso";
 
 		function openDialog(id) {
 		  document.getElementById(id).style.display = 'block';
@@ -438,11 +438,18 @@ td {
         }
 
         if(window.electronAPI.fExists("disks/"+qOS.ssd)){
-          window.electronAPI.playOS(document.getElementById('txt_pws').value,cmd);
-          document.getElementById("ejecutarSO").disabled = true;
-          document.getElementById("ejecutarSO").classList.add("btn-stop");
-          document.getElementById("ejecutarSO").title="Sistema Operativo en Ejecuciòn";
-          log("Se ejecuto " + document.getElementById("SisOpe").options[document.getElementById("SisOpe").selectedIndex].text + " (Max CPUs "+ document.getElementById("mCore").value + ", Core "+ ((document.getElementById("nCore").value != "")?document.getElementById("nCore").value:document.getElementById("mCore").value) + ", Ram " + document.getElementById("nRam").value + " GB)");  
+
+          if(window.electronAPI.fExists("bios/"+qOS.arq)){
+            window.electronAPI.playOS(document.getElementById('txt_pws').value,cmd);
+            document.getElementById("ejecutarSO").disabled = true;
+            document.getElementById("ejecutarSO").classList.add("btn-stop");
+            document.getElementById("ejecutarSO").title="Sistema Operativo en Ejecuciòn";
+            log("Se ejecuto " + document.getElementById("SisOpe").options[document.getElementById("SisOpe").selectedIndex].text + " (Max CPUs "+ document.getElementById("mCore").value + ", Core "+ ((document.getElementById("nCore").value != "")?document.getElementById("nCore").value:document.getElementById("mCore").value) + ", Ram " + document.getElementById("nRam").value + " GB)");  
+          }else{
+            document.getElementById('dialog-alert-mensaje').innerHTML = "Deben existir las <b> Bios "+ qOS.arq +"</b> para este sistema operativo.";
+            openDialog("dialog-alert");
+            document.getElementById("SisOpe").value = -1;
+          }
         }else{
           document.getElementById('dialog-alert-mensaje').innerHTML = "Debe existir <b>"+ qOS.ssd +"</b> en <b>disks/</b> con el sistema operativo.";
           openDialog("dialog-alert");
@@ -507,7 +514,7 @@ td {
     }
     function log(mensaje){
       let fecha = new Date();
-      fecha = ((fecha.getDate() < 10)?"0"+fecha.getDate():fecha.getDate()) + "/" + (((fecha.getMonth() + 1) < 10)?"0"+(fecha.getMonth() + 1):(fecha.getMonth() + 1)) + "/" + fecha.getFullYear() + " "+ ((fecha.getHours() < 10)?"0"+fecha.getHours():fecha.getHours()) + ":" +((fecha.getMinutes() < 10)?"0"+fecha.getMinutes():fecha.getMinutes()) + "." + ((fecha.getSeconds() < 10)?"0"+fecha.getSeconds():fecha.getSeconds()) + " - " + mensaje;
+      fecha = ((fecha.getDate() < 10)?"0"+fecha.getDate():fecha.getDate()) + "/" + (((fecha.getMonth() + 1) < 10)?"0"+(fecha.getMonth() + 1):(fecha.getMonth() + 1)) + "/" + fecha.getFullYear() + " "+ ((fecha.getHours() < 10)?"0"+fecha.getHours():fecha.getHours()) + ":" +((fecha.getMinutes() < 10)?"0"+fecha.getMinutes():fecha.getMinutes()) + "." + ((fecha.getSeconds() < 10)?"0"+fecha.getSeconds():fecha.getSeconds()) + " - " + mensaje.replace("sudo","id").replace("password","get").replace(/<\/br>/gi,"\n");
       document.getElementById("txt_log").value += fecha + "\n";
     }
 
@@ -547,19 +554,26 @@ td {
     }
 
     function installW11(){
+      
+      let quemuOS = window.electronAPI.getOS();
+      let wInstall = {};
 
+      for (var x = 0; x < quemuOS.length; x++) {
+            if(quemuOS[x].type == "installW11")
+              wInstall = quemuOS[x];
+          }
+      
       if(!window.electronAPI.fExists("disks/" + document.getElementById("txt_disk_w11").value + ".qcow2")){
         //log("Se requiere el nombre del disco virtual en disks/ para la instalación.");
-        document.getElementById('dialog-alert-mensaje').innerHTML = "Se requiere el nombre del <b>disco virtual en disks/</b> para la instalación.";
+        document.getElementById('dialog-alert-mensaje').innerHTML = "Se requiere el nombre del <b>disco virtual</b> en <b>disks/</b> para <b>"+ wInstall.os +"</b>.";
         openDialog("dialog-alert");
       }else{
-          if(!window.electronAPI.fExists(document.getElementById("txt_iso_w11").value)){
+        if(!window.electronAPI.fExists(document.getElementById("txt_iso_w11").value)){
           //log("Se requiere la iso de Window 11.");
-          document.getElementById('dialog-alert-mensaje').innerHTML = "Se requiere la iso de <b>Window 11</b>.";
+          document.getElementById('dialog-alert-mensaje').innerHTML = "Se requiere la iso de <b>"+ wInstall.os +"</b>.";
           openDialog("dialog-alert");
-        }else{
-          let quemuOS = window.electronAPI.getOS();
-          let wInstall = {};
+        }else{          
+          
           let tpm = (window.electronAPI.isSWTPM(sock_tpm))?sock_tpm:"";
           let cmd = "";
           let swtpm = "-chardev socket,id=chrtpm,path=" + tpm + " -tpmdev emulator,id=tpm0,chardev=chrtpm -device tpm-tis,tpmdev=tpm0";
@@ -570,58 +584,59 @@ td {
           if(tpm == "")
              swtpm = "";
 
-          for (var x = 0; x < quemuOS.length; x++) {
-            if(quemuOS[x].type == "installW11")
-              wInstall = quemuOS[x];
-          }
+          if(!window.electronAPI.fExists("bios/"+wInstall.arq)){
+              document.getElementById('dialog-alert-mensaje').innerHTML = "Deben existir las <b> Bios "+ wInstall.arq +"</b> para <b>"+ wInstall.os +"</b>.";
+              openDialog("dialog-alert"); 
+          }else{
+            for (var i = 0; i < wInstall.cmd.length; i++) {
 
-          for (var i = 0; i < wInstall.cmd.length; i++) {
+              cmd += wInstall.cmd[i] + " ";
 
-            cmd += wInstall.cmd[i] + " ";
+              cmd = cmd.replace("<-(ram)->",wInstall.ram);
+              cmd = cmd.replace("<-(mcore)->",wInstall.mcore);
+              if(wInstall.ncore != "")
+                cmd = cmd.replace("<-(ncore)->",",cores="+wInstall.ncore);
+              else
+                cmd = cmd.replace("<-(ncore)->",wInstall.ncore);
+              cmd = cmd.replace("<-(os)->",wInstall.os);
+              cmd = cmd.replace("<-(socket)->",wInstall.socket);
+              cmd = (!wInstall.arq)?cmd.replace("<-(arq)->",""):cmd.replace("<-(arq)->",wInstall.arq+'/');
 
-            cmd = cmd.replace("<-(ram)->",wInstall.ram);
-            cmd = cmd.replace("<-(mcore)->",wInstall.mcore);
-            if(wInstall.ncore != "")
-              cmd = cmd.replace("<-(ncore)->",",cores="+wInstall.ncore);
-            else
-              cmd = cmd.replace("<-(ncore)->",wInstall.ncore);
-            cmd = cmd.replace("<-(os)->",wInstall.os);
-            cmd = cmd.replace("<-(socket)->",wInstall.socket);
-            cmd = (!wInstall.arq)?cmd.replace("<-(arq)->",""):cmd.replace("<-(arq)->",wInstall.arq+'/');
+              cmd = cmd.replace("<-(ssd)->",document.getElementById("txt_disk_w11").value + ".qcow2");
+              cmd = cmd.replace("<-(isowin)->",document.getElementById("txt_iso_w11").value); 
 
-            cmd = cmd.replace("<-(ssd)->",document.getElementById("txt_disk_w11").value + ".qcow2");
-            cmd = cmd.replace("<-(isowin)->",document.getElementById("txt_iso_w11").value); 
+              if(wInstall.cmd[i].indexOf(fVirtIO) !== -1)
+                  driverVirtio = fVirtIO;
+            
+            }
+            cmd += swtpm;
 
-            if(wInstall.cmd[i].indexOf(fVirtIO) !== -1)
-                driverVirtio = fVirtIO;
-          
-          }
-          cmd += swtpm;
-          if(driverVirtio != ""){
-            if(window.electronAPI.fExists(driverVirtio)){
-              exeWinInstall(wInstall,cmd);
-            }else{
-              let tFVIOFaltan = "";
-              for (var i = 1; i < 7; i++) {
-                if(!window.electronAPI.fExists(driverVirtio+"_"+i)){
-                    tFVIOFaltan += driverVirtio +"_" + i + ",";
-                }
-                if(i == 6){
-                  if(tFVIOFaltan != ""){
-                    log("Se requieren los binarios: " + tFVIOFaltan + " descargar de GitHub...");
-                    document.getElementById('dialog-alert-mensaje').innerHTML = "Se requieren los binarios: <b>" + tFVIOFaltan + " descargar de GitHub</b>...";
-                    openDialog("dialog-alert");
-                  }else{
-                    //log("Se requieren los driver virtio-win, reinicie la aplicación para generar.");
-                    document.getElementById('dialog-alert-mensaje').innerHTML = "Se requieren los driver <b>virtio-win</b>, reinicie la aplicación para generar.";
-                    openDialog("dialog-alert");
+            if(driverVirtio != ""){
+              if(window.electronAPI.fExists(driverVirtio)){
+                exeWinInstall(wInstall,cmd);
+              }else{
+                let tFVIOFaltan = "";
+                for (var i = 1; i < 7; i++) {
+                  if(!window.electronAPI.fExists(driverVirtio+"_"+i)){
+                      tFVIOFaltan += driverVirtio +"_" + i + ",";
+                  }
+                  if(i == 6){
+                    if(tFVIOFaltan != ""){
+                      log("Se requieren los binarios: " + tFVIOFaltan + " descargar de GitHub...");
+                      document.getElementById('dialog-alert-mensaje').innerHTML = "Se requieren los binarios: <b>" + tFVIOFaltan + "</b> descargar de <b>GitHub</b>...";
+                      openDialog("dialog-alert");
+                    }else{
+                      //log("Se requieren los driver virtio-win, reinicie la aplicación para generar.");
+                      document.getElementById('dialog-alert-mensaje').innerHTML = "Se requieren los drivers <b>virtio-win</b>, reinicie la aplicación para generar.";
+                      openDialog("dialog-alert");
+                    }
                   }
                 }
               }
-            }
-          }else{
-            exeWinInstall(wInstall,cmd);
-          }    
+            }else{
+              exeWinInstall(wInstall,cmd);
+            }  
+          }
         }
       }
     }

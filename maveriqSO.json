@@ -26,7 +26,7 @@
     "-name \"<-(os)->\"",
     "-monitor unix:/tmp/<-(socket)->,server,nowait",
     "-drive file=<-(isowin)->,media=cdrom",
-    "-drive file=drives/virtio-win.iso,media=cdrom"]
+    "-drive file=drivers/virtio-win.iso,media=cdrom"]
 },{
 	"os": "Windows 11",
 	"ram": 4,
