@@ -23,7 +23,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getUser: () => ipcRenderer.sendSync("user-app"),
   getOS: () => ipcRenderer.sendSync("os-app"),
   validaPswd: (usr,pswd) => ipcRenderer.sendSync("valida-pswd",[usr,pswd]),
-  playOS: (pwd,cmd) => ipcRenderer.send("play-os",[pwd,cmd]),
+  playOS: (pswd,cmd,socket) => ipcRenderer.send("play-os",[pswd,cmd,socket]),
   validaPlayOS: (os) => ipcRenderer.sendSync("valida-play-os",os),
   processUSB: (disp,metodo,pswd,callback) => ipcRenderer.sendSync("process_usb",[disp,metodo,pswd,callback]),
   getNameDisk:(name) => ipcRenderer.sendSync("get_name_disk",name),
@@ -33,4 +33,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   isSWTPM: (sock) => (require('fs').existsSync(sock))?true:false,
   fExists: (file) => (file != "")?((require('fs').existsSync(file))?true:false):false,
   createVirtIO: (file) => ipcRenderer.send("create_drive_virtio",file),
+  getDisks:() => ipcRenderer.sendSync("get_disks"),
+  upVirtiofsd:(pswd,source) => ipcRenderer.send("up_virtiofsd",[pswd,source]),
 });

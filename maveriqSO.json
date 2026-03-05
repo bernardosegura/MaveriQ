@@ -53,5 +53,28 @@
     "-device qemu-xhci,id=xhci",
     "-name \"<-(os)->\"",
 	"-monitor unix:/tmp/<-(socket)->,server,nowait"]
+},{
+    "os": "Windows 10",
+    "ram": 4,
+    "ncore": "",
+    "mcore": 4,
+    "ssd": "ssd",
+    "socket": "qWin10.unix",
+    "type": "installed",
+    "arq":"x64",
+    "cmd":["qemu-system-x86_64",
+    "--enable-kvm",
+    "-m <-(ram)->G", 
+    "-M q35,accel=kvm",
+    "-cpu host",
+    "-smp <-(mcore)-><-(ncore)->",
+    "-drive file=disks/<-(ssd)->,index=0,media=disk,if=virtio,cache=unsafe",
+    "-rtc base=localtime",
+    "-device virtio-vga-gl -display gtk,gl=on -usb -device usb-tablet",
+    "-net nic,model=virtio-net-pci",
+    "-net user,hostfwd=tcp::3389-:3389",
+    "-device qemu-xhci,id=xhci",
+    "-name \"<-(os)->\"",
+    "-monitor unix:/tmp/<-(socket)->,server,nowait"]
 }
 ]

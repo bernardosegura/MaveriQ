@@ -1,6 +1,7 @@
 const { app,ipcMain,BrowserWindow, globalShortcut, Menu } = require('electron');
 let win = null;
 let isdev = (__dirname.indexOf("app.asar") === -1)?true:false; 
+let virtiofsdFile = "extras/virtiofsd";
 
 const menu = [
   {
@@ -79,9 +80,10 @@ function createWindow() {
   });
   win.loadFile('index.html');
   
-  if(!isdev)
-    globalShortcut.register('CommandOrControl+Shift+I', () => {
-          return false;
+  if(isdev)
+      globalShortcut.register('CommandOrControl+Shift+I', () => {
+          //return false;
+          win.webContents.openDevTools();
       }); 
   Menu.setApplicationMenu(Menu.buildFromTemplate(menu));     
 }
@@ -149,6 +151,14 @@ ipcMain.on('create_drive_virtio', (event, file) => {
   createVirtIO(file);
 });
 
+ipcMain.on('get_disks', (event) => {
+  event.returnValue = getDisks();
+});
+
+ipcMain.on('up_virtiofsd', (event, args) => {
+  upVirtiofsd(args[0],args[1]);
+});
+
 function processUSB(disp, metodo,pswd,callback) {
   let fileConnect = disp.replace(/_/g,"/tmp/").replace(disp.split("_")[0],"");
   let address = {bus:disp.split("_")[0].split(":")[0], dev: disp.split("_")[0].split(":")[1]};
@@ -195,15 +205,31 @@ function processUSB(disp, metodo,pswd,callback) {
 function validatePassword(usr, pswd) {
     const { execSync } = require('child_process');
     const command = `echo "${pswd}" | su -c "whoami" - ${usr} 2>/dev/null`;
+    
+    preVirtiofsd(pswd);
     try{
-      if(execSync(command).toString().startsWith(usr))
+      if(execSync(command).toString().startsWith(usr)){
         return true;
+      }
       else
         return false;
     }catch(err){
       return false
     }
-    return resp;
+}
+
+function preVirtiofsd(pswd){
+  const { exec } = require('child_process');
+  const command = `echo "${pswd}" | sudo -E -S chmod +x ${virtiofsdFile} 2>/dev/null`;
+  exec(command, (error, stdout, stderr) => {});
+}
+
+function upVirtiofsd(pswd,source){
+  const { exec } = require('child_process');
+  const command = `echo "${pswd}" | sudo -E -S ${virtiofsdFile} --socket-path="/tmp/vfs.sock" -o source="${source}" >/tmp/virtiofsd.log 2>&1 &`;
+  exec(command, (error, stdout, stderr) => {});
+  //sudo pkill virtiofsd
+  //upVirtiofsd(pswd,"../Win10_MV/mv_windows_10/datos_compartidos/");
 }
 
 function playOS(cmd) {
@@ -213,8 +239,9 @@ function playOS(cmd) {
       if(stderr){
         msgBox("<b>Error</b>: favor de revisar log en <b>Reporte de Actividades</b>.");
         log(stderr.replace(/\n/g,"</br>").replace(/'/g,"\\'"));
-        win.webContents.executeJavaScript('document.getElementById("SisOpe").value = -1; loadInf();'); 
+        exec('echo "'+ cmd[0] +'" | sudo -E -S rm /tmp/' + cmd[2], (error, stdout, stderr) => {});
       }
+      win.webContents.executeJavaScript('document.getElementById("SisOpe").value = -1; loadInf();'); 
     });
 }
 
@@ -289,4 +316,15 @@ function createVirtIO(file) {
         exec(cmd + "> " + file, (error, stdout, stderr) => {});
       }
     }
+}
+
+function getDisks(){
+  const fs = require('fs');
+  let nameDisks = [];
+
+  if(!fs.existsSync("disks"))
+    return nameDisks;
+  
+  nameDisks = fs.readdirSync("disks/");
+  return nameDisks;
 }
