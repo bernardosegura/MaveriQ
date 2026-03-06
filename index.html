@@ -641,7 +641,7 @@ td {
               cmd = cmd.replace("<-(socket)->",wInstall.socket);
               cmd = (!wInstall.arq)?cmd.replace("<-(arq)->",""):cmd.replace("<-(arq)->",wInstall.arq+'/');
 
-              cmd = cmd.replace("<-(ssd)->",document.getElementById("txt_disk_w11").value + ".qcow2");
+              cmd = cmd.replace("<-(ssd)->",document.getElementById("txt_disk_w11").value /*+ ".qcow2"*/);
               cmd = cmd.replace("<-(isowin)->",document.getElementById("txt_iso_w11").value); 
 
               if(wInstall.cmd[i].indexOf(fVirtIO) !== -1)
@@ -681,7 +681,7 @@ td {
     }
 
     function exeWinInstall(wInstall,cmd){
-        window.electronAPI.playOS(document.getElementById('txt_pws').value,cmd);
+        window.electronAPI.playOS(document.getElementById('txt_pws').value,cmd,wInstall.socket);
         log("Se ejecuto " + wInstall.os + " (Max CPUs "+ wInstall.mcore + ", Core "+ ((wInstall.ncore != "")?wInstall.ncore:wInstall.mcore) + ", Ram " + wInstall.ram + " GB)");
         document.getElementById("btn_installW11").disabled = true;
         document.getElementById("btn_installW11").classList.remove("btn-iW11");
