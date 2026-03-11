@@ -40,3 +40,7 @@ jspm_packages
 .idea
 
 package-lock.json
+
+disks
+
+virtio-win.iso
