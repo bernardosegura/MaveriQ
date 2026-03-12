@@ -17,7 +17,7 @@ Siéntase libre de jugar con estas configuraciones y agregar las propias si así
 5. __Seleccionar Disco__ al llegar ha este apartado, se deben cargar los drivers de almacenamiento de virtio, selecciona cargar drivers y posteriormente el cd he ir a la ruta de __viostor/w11/amd64__
 
 # Alternar entre Sistemas Operativos
-Para alternar entre sistemas es necesario borrar la bios, esto para que al cambiar de disco virtual este sea reconocido de inmediato y entre sin ningún problema, de lo contrario se tendía que modificar directamente en la maquina virtual para que identifique el sistema operativo diferente al que tenia ya registrado. Se puede usar la opción de limpiar bios para que se realice de manera automática el limpiado.
+Al intercambiar discos virtuales, es importante realizar una limpieza de la BIOS. Este procedimiento asegura que el nuevo sistema operativo sea reconocido de forma inmediata y automática. __Importante__: Si no se realiza este paso, se deberá configurar manualmente los parámetros de arranque dentro de la máquina virtual para que identifique el nuevo volumen. Se recomienda utilizar la función __"Limpiar BIOS"__ para automatizar este proceso.
 
 # Compartir Directorio con Windows Virtual
 Para que __Windows Virtualizado__ reconozca el directorio compartido, es necesario instalar [winfsp](https://winfsp.dev/) (instalar solo el Core) y de __virtio-win__ instalar __Viofs__, una vez instalado el driver __Viofs__, es impórtate que el servicio __VirtIO-FS__ se encuentre ejecutándose correctamente para poder acceder sin problema al directorio compartido.
