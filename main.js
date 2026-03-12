@@ -1,7 +1,7 @@
 const { app,ipcMain,BrowserWindow, globalShortcut, Menu } = require('electron');
 let win = null;
 let isdev = (__dirname.indexOf("app.asar") === -1)?true:false; 
-let virtiofsdFile = "extras/virtiofsd";
+let virtiofsdFile = "drivers/virtiofsd";
 
 const menu = [
   {
