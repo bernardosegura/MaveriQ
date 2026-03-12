@@ -20,7 +20,11 @@ Siéntase libre de jugar con estas configuraciones y agregar las propias si así
 Al intercambiar discos virtuales, es importante realizar una limpieza de la BIOS. Este procedimiento asegura que el nuevo sistema operativo sea reconocido de forma inmediata y automática. __Importante__: Si no se realiza este paso, se deberá configurar manualmente los parámetros de arranque dentro de la máquina virtual para que identifique el nuevo volumen. Se recomienda utilizar la función __"Limpiar BIOS"__ para automatizar este proceso.
 
 # Compartir Directorio con Windows Virtual
-Para que __Windows Virtualizado__ reconozca el directorio compartido, es necesario instalar [winfsp](https://winfsp.dev/) (instalar solo el Core) y de __virtio-win__ instalar __Viofs__, una vez instalado el driver __Viofs__, es impórtate que el servicio __VirtIO-FS__ se encuentre ejecutándose correctamente para poder acceder sin problema al directorio compartido.
+Para habilitar el acceso al directorio compartido en  __Windows Virtualizado__, es obligatorio instalar los siguientes componentes en la virtualización:
+1. [WinFSP](https://winfsp.dev/): Seleccione únicamente la opción Core durante la instalación.
+2. __VirtIO-Win__: Instale el driver __Viofs__.
+   
+__Nota crítica__: Una vez instalados, verifique que el servicio __VirtIO-FS__ se esté ejecutando correctamente. Sin este servicio activo, el sistema no podrá montar ni acceder al directorio compartido en el explorador de archivos.
    
 # Ejecución del código fuente
 ```bash
