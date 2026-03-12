@@ -5,10 +5,10 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title id="wnd_title">MaveriQ - Administrador de Virtualización</title>
 <!-- BEGIN: Scripts and Styles -->
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<script src="res/tailwindcss_3.4.17.js"></script>
+<!-- link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/-->
+<link href="res/fonts.googleapis.css2.css" rel="stylesheet"/>
 <style data-purpose="custom-styling">
     body {
       font-family: 'Inter', sans-serif;
@@ -78,7 +78,7 @@
 <div class="dialog-container fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-100" id="dialog-pass">
 <h2 class="text-xl font-bold mb-4 text-center text-slate-800" id="dlg_pass_title">Autorización Requerida</h2>
 <div class="space-y-4">
-<p class="text-slate-600 text-sm">Contraseña para <span class="font-semibold text-primary" id="id_usr"></span></p>
+<p class="text-slate-600">Contraseña para <span class="font-semibold text-primary" id="id_usr"></span></p>
 <input class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" id="txt_pws" onkeyup="if(event.keyCode == 13) validarUsr();" type="password"/>
 <div class="flex gap-3 justify-end pt-2">
 <button class="px-4 py-2 text-slate-500 hover:text-slate-700 font-medium transition" id="dialog-pass-btnCancel" onclick="window.electronAPI.exit();">Cancelar</button>
@@ -276,7 +276,32 @@
                             Crear Disco Dinámico
                         </button>
 </div>
+<div>
+<label class="block text-xs font-semibold text-slate-500 uppercase mb-1" for="opt_disk">Optimizar Disco</label>
+<select class="w-full" id="opt_disk" onchange="document.getElementById('nuevo_disco').innerHTML=(this.value !='-1')?this.value+'.opt':'';"></select>
 </div>
+<div class="flex items-center gap-2 mb-4">
+<input class="rounded text-primary" id="comprimir_disco" type="checkbox"/>
+<label class="text-sm text-slate-600" for="comprimir_disco">Comprimir Disco</label>
+</div>
+<div class="flex items-center gap-2 mb-4">
+<input checked="" class="rounded text-primary" id="borrar_disco" type="checkbox"/>
+<label class="text-sm text-slate-600" for="borrar_disco">Guardar como <b id="nuevo_disco"></b></label>
+</div>
+<div class="mt-6 pt-6 border-t border-slate-100">
+<div class="flex justify-between items-center mb-2">
+<label class="text-xs font-bold text-slate-400 uppercase">Optimización de Disco</label>
+<span class="text-xs font-bold text-success" id="porcentaje_texto">0%</span>
+</div>
+<div class="w-full bg-slate-100 rounded-full h-2">
+<div class="bg-success h-2 rounded-full shadow-sm" style="width: 0%" id="porcentaje_barra"></div>
+</div>
+</div>
+</div>
+<button class="mt-8 w-full bg-primary text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-700 transition shadow-lg shadow-blue-200" onclick="ejecutar_optimizacion()" title="Se requiere realizar un trim al disco desde el sistema virtualizado." id="id_exec_opt">
+<svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M21 12V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7"></path><line x1="3" x2="21" y1="9" y2="9"></line><path d="M16 19h6"></path><path d="M19 16v6"></path></svg>
+                   EJECUTAR
+                </button>
 </section>
 </div>
 </main>
@@ -359,6 +384,8 @@
                 const now = new Date();
                 document.getElementById('live_clock').innerText = now.toLocaleTimeString();
             }, 1000);
+
+            loadDisks_opt();
         }
 
         function uptUSBDev(){
@@ -557,6 +584,9 @@
                 log("Creando disco " + disco + " con un tamaño total de " + tamanio + " en disks...");
                 window.electronAPI.crearDisk(disco, tamanio);
             } 
+
+            setTimeout(() => {
+              loadDisks_opt()}, 1000);  
         }
 
         function startSFTPM(){
@@ -682,6 +712,14 @@
             }
         }
 
+        function loadDisks_opt(){
+            let disks = window.electronAPI.getDisks();
+            document.getElementById("opt_disk").innerHTML = "<option value='-1'>Elegir disco...</option>";
+            for (var d = 0; d < disks.length; d++) {
+                document.getElementById("opt_disk").innerHTML += "<option value='"+disks[d]+"'>"+disks[d]+"</option>";
+            }
+        }
+
         function loadDisks(){
             let disks = window.electronAPI.getDisks();
             document.getElementById("opt_disk_w11").innerHTML = "<option value='-1'>Elegir disco...</option>";
@@ -709,6 +747,25 @@
             document.getElementById('dir_so').value = "";
             document.getElementById('dir_comp_so').innerHTML = "Sin Carpeta Compartida";
             carpeta_compartida = [];
+        }
+
+        function colocarPorcentaje(porcentaje){
+          document.getElementById("porcentaje_texto").innerHTML = porcentaje+"%";
+          document.getElementById("porcentaje_barra").style.width = porcentaje+"%";
+        }
+
+        function ejecutar_optimizacion(){
+          if(document.getElementById("opt_disk").value == "-1"){
+              document.getElementById('dialog-alert-mensaje').innerHTML = "Se requiere el nombre del <b>disco virtual</b>";
+                openDialog("dialog-alert");
+                return;
+            }
+       
+            document.getElementById("id_exec_opt").disabled = true;
+            document.getElementById("id_exec_opt").classList.add("btn-stop");
+            
+            //        document.getElementById("ejecutarSO").disabled = false;
+            //        document.getElementById("ejecutarSO").classList.remove("btn-stop");
         }
     </script>
 <!-- END: Original JavaScript Implementation -->
