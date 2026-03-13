@@ -26,7 +26,7 @@ Para habilitar el acceso al directorio compartido en  __Windows Virtualizado__, 
    
 __Nota crítica__: Una vez instalados, verifique que el servicio __VirtIO-FS__ se esté ejecutando correctamente. Sin este servicio activo, el sistema no podrá montar ni acceder al directorio compartido en el explorador de archivos.
 
-## Optimización de Discos SSD Virtuales
+# Optimización de Discos SSD Virtuales
 Esta función reduce el tamaño del disco virtual eliminando de la imagen física los sectores que el sistema operativo invitado ya ha marcado como borrados. 
 ### Requisito: Operación TRIM
 Para que el proceso de recorte sea efectivo, es necesario que el SO invitado ejecute primero la operación **TRIM**:
