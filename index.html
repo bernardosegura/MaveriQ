@@ -169,7 +169,7 @@
 </div>
 <div class="flex items-center gap-4">
 <div class="flex items-center gap-2">
-<span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase"><div class="w-2 h-2 rounded-full bg-green-500 animate-pulse" style="float: left; position:relative; left:-3px; top: 3px;"></div><label id="app_version_label">v0.0.0</label></span>
+<span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase" title="Salir" onclick="window.electronAPI.exit();" style="cursor: pointer;"><div class="w-2 h-2 rounded-full bg-green-500 animate-pulse" style="float: left; position:relative; left:-3px; top: 3px; cursor: pointer;"></div><label id="app_version_label" style="cursor: pointer;">v0.0.0</label></span>
 </div>
 </div>
 </header>
@@ -179,7 +179,7 @@
 <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col">
 <div class="flex items-center gap-2 mb-6">
 <svg class="text-primary" fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-<h3 class="font-bold text-slate-800">Configuración SO</h3>
+<h3 class="font-bold text-slate-800" style="cursor: default;">Configuración SO</h3>
 </div>
 <div class="space-y-4 flex-1">
 <div>
@@ -202,7 +202,7 @@
 </div>
 <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
 <div class="flex justify-between items-center mb-3">
-<span class="text-xs font-bold text-slate-400 uppercase">CD-ROM / ISO</span>
+<span class="text-xs font-bold text-slate-400 uppercase" style="cursor: default;">CD-ROM / ISO</span>
 <div class="flex gap-2">
 <button class="text-primary hover:bg-blue-100 p-1 rounded-md transition" id="img_cdrom_so" onclick="document.getElementById('cdrom_so').click()" title="Agregar Imagen ISO">
 <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path><path d="M7 12a5 5 0 0 1 5 -5"></path></svg>
@@ -212,7 +212,7 @@
 </button>
 </div>
 </div>
-<p class="text-sm text-slate-600 truncate italic" id="img_iso_cdrom">Sin CD-Rom</p>
+<p class="text-sm text-slate-600 truncate italic" id="img_iso_cdrom" style="cursor: default;">Sin CD-Rom</p>
 <input class="hidden" id="cdrom_so" onchange="document.getElementById('img_iso_cdrom').innerHTML=this.files[0].name;" type="file"/>
 </div>
 </div>
@@ -225,12 +225,12 @@
 <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
 <div class="flex items-center gap-2 mb-6">
 <svg class="text-primary" fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M2 8s.5-1 2-1 2 1 2 1"></path><path d="M2 12s.5-1 2-1 2 1 2 1"></path><path d="M2 16s.5-1 2-1 2 1 2 1"></path><path d="M17 12h2a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"></path><path d="M7 8h10"></path><path d="M7 12h10"></path><path d="M7 16h10"></path><path d="M7 4h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"></path></svg>
-<h3 class="font-bold text-slate-800">Medios de Comunicación</h3>
+<h3 class="font-bold text-slate-800" style="cursor: default;">Medios de Comunicación</h3>
 </div>
 <div class="space-y-6">
 <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
 <div class="flex justify-between items-center mb-3">
-<span class="text-xs font-bold text-slate-400 uppercase">Carpeta Compartida</span>
+<span class="text-xs font-bold text-slate-400 uppercase" style="cursor: default;">Carpeta Compartida</span>
 <div class="flex gap-2">
 <button class="text-primary hover:bg-blue-100 p-1 rounded-md transition" id="img_dir_so" onclick="document.getElementById('dir_so').click()" title="Compartir Carpeta">
 <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
@@ -240,7 +240,7 @@
 </button>
 </div>
 </div>
-<p class="text-sm text-slate-600 truncate italic" id="dir_comp_so" title="Nota: Para Windows es necesario que este corriendo el servicio 'VirtIO-FS Service', log en /tmp/virtiofsd.log.">Sin Carpeta Compartida</p>
+<p class="text-sm text-slate-600 truncate italic" id="dir_comp_so" title="Nota: Para Windows es necesario que este corriendo el servicio 'VirtIO-FS Service', log en /tmp/virtiofsd.log." style="cursor: default;">Sin Carpeta Compartida</p>
 <input class="hidden" id="dir_so" onchange="loadCapCop(this);" type="file" webkitdirectory=""/>
 </div>
 <div class="mt-6">
@@ -266,11 +266,11 @@
 <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
 <div class="flex items-center gap-2 mb-6">
 <svg class="text-primary" fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>
-<h3 class="font-bold text-slate-800">Almacenamiento</h3>
+<h3 class="font-bold text-slate-800" style="cursor: default;">Almacenamiento</h3>
 </div>
 <div class="space-y-6">
 <div class="flex flex-col gap-2">
-<span class="text-xs font-bold text-slate-400 uppercase">Disco Duro Virtual</span>
+<span class="text-xs font-bold text-slate-400 uppercase" style="cursor: default;">Disco Duro Virtual</span>
 <button class="w-full flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl transition border border-slate-200" id="crearDisco" onclick="cdd()">
 <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><line x1="12" x2="12" y1="5" y2="19"></line><line x1="5" x2="19" y1="12" y2="12"></line></svg>
                             Crear Disco Dinámico
@@ -308,11 +308,11 @@
 <!-- Terminal/Log Section -->
 <footer class="bg-[#0f172a] h-64 flex flex-col shrink-0">
 <div class="bg-slate-800 px-4 py-1 flex items-center justify-between">
-<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2" style="cursor: default;">
 <svg fill="none" height="12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24" width="12" xmlns="http://www.w3.org/2000/svg"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg>
                 Reporte de Actividades
             </span>
-<span class="text-[10px] text-slate-500 terminal-font" id="live_clock">--:--:--</span>
+<span class="text-[10px] text-slate-500 terminal-font" id="live_clock" style="cursor: default;">--:--:--</span>
 </div>
 <textarea class="flex-1 bg-transparent border-none text-green-400 terminal-font text-xs p-4 resize-none focus:ring-0 leading-relaxed" id="txt_log" placeholder="Esperando eventos del sistema..." readonly=""></textarea>
 </footer>

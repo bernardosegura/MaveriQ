@@ -65,8 +65,8 @@ function msgBox(message){
 function createWindow() {
   const path = require('path');
   win = new BrowserWindow({
-    width: 933,
-    height: (291+180+62+189),
+    width: 1050,
+    height: 952,
     webPreferences: {
       nodeIntegration: true,
       preload: path.join(__dirname, 'preload.js'),
