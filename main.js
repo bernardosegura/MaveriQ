@@ -159,6 +159,10 @@ ipcMain.on('up_virtiofsd', (event, args) => {
   upVirtiofsd(args[0],args[1]);
 });
 
+ipcMain.on('optimizar_disk', (event, args) => {
+  optimizarDisk(args[0],args[1],args[2]);
+});
+
 function processUSB(disp, metodo,pswd,callback) {
   let fileConnect = disp.replace(/_/g,"/tmp/").replace(disp.split("_")[0],"");
   let address = {bus:disp.split("_")[0].split(":")[0], dev: disp.split("_")[0].split(":")[1]};
@@ -327,4 +331,42 @@ function getDisks(){
   
   nameDisks = fs.readdirSync("disks/");
   return nameDisks;
+}
+
+function optimizarDisk(disk,compress,guardarcomo){
+  const { spawn,exec } = require('child_process');
+  let convert = '';
+  let pathDisk = 'disks/';
+
+  if(compress)
+    convert = spawn("qemu-img",['convert','-c','-p','-S','4k','-f','qcow2','-O','qcow2',pathDisk+disk,((guardarcomo == "")?pathDisk+disk+".tmp":pathDisk+guardarcomo)]);
+  else
+    convert = spawn("qemu-img",['convert','-p','-S','4k','-f','qcow2','-O','qcow2',pathDisk+disk,((guardarcomo == "")?pathDisk+disk+".tmp":pathDisk+guardarcomo)]);
+
+  convert.stdout.on('data', (data)=>{
+    let porcentaje = data.toString().replace(/[^0-9.]/g, '');
+    porcentaje = porcentaje.split(".");
+    porcentaje = porcentaje[0];
+    updatePorcentaje(porcentaje);
+  });
+
+  convert.stderr.on('data', (data)=>{
+      msgBox("<b>Error</b>: favor de revisar log en <b>Reporte de Actividades</b>.");
+      log(data.toString().replace(/\n/g,"</br>").replace(/'/g,"\\'"));
+  });
+
+  convert.on('exit', code => {
+        if(guardarcomo == ""){
+          exec('rm '+ pathDisk+disk + ' && mv '+ pathDisk+disk+".tmp "+ pathDisk+disk, (error, stdout, stderr) => { finalizarOptimizacionDiscos(); });
+        }else
+          finalizarOptimizacionDiscos();
+  });
+}
+
+function updatePorcentaje(porcentaje){
+  win.webContents.executeJavaScript("colocarPorcentaje("+porcentaje+");");
+}
+
+function finalizarOptimizacionDiscos(){
+  win.webContents.executeJavaScript("resetOptDiscos();");
 }

@@ -278,7 +278,7 @@
 </div>
 <div>
 <label class="block text-xs font-semibold text-slate-500 uppercase mb-1" for="opt_disk">Optimizar Disco</label>
-<select class="w-full" id="opt_disk" onchange="document.getElementById('nuevo_disco').innerHTML=(this.value !='-1')?this.value+'.opt':'';"></select>
+<select class="w-full" id="opt_disk" onchange="colocarPorcentaje(0); document.getElementById('nuevo_disco').innerHTML=(this.value !='-1')?'opt_'+this.value:'';"></select>
 </div>
 <div class="flex items-center gap-2 mb-4">
 <input class="rounded text-primary" id="comprimir_disco" type="checkbox"/>
@@ -750,8 +750,10 @@
         }
 
         function colocarPorcentaje(porcentaje){
-          document.getElementById("porcentaje_texto").innerHTML = porcentaje+"%";
-          document.getElementById("porcentaje_barra").style.width = porcentaje+"%";
+          if(!isNaN(porcentaje)){
+             document.getElementById("porcentaje_texto").innerHTML = porcentaje+"%";
+             document.getElementById("porcentaje_barra").style.width = porcentaje+"%";
+          }
         }
 
         function ejecutar_optimizacion(){
@@ -760,12 +762,18 @@
                 openDialog("dialog-alert");
                 return;
             }
-       
             document.getElementById("id_exec_opt").disabled = true;
             document.getElementById("id_exec_opt").classList.add("btn-stop");
-            
-            //        document.getElementById("ejecutarSO").disabled = false;
-            //        document.getElementById("ejecutarSO").classList.remove("btn-stop");
+            document.getElementById("opt_disk").disabled = true;  
+
+            window.electronAPI.optimizarDisk(document.getElementById("opt_disk").value,document.getElementById("comprimir_disco").checked,((document.getElementById("borrar_disco").checked)?document.getElementById('nuevo_disco').innerHTML:""));   
+        }
+
+        function resetOptDiscos(){
+            document.getElementById("id_exec_opt").disabled = false;
+            document.getElementById("id_exec_opt").classList.remove("btn-stop");
+            document.getElementById("opt_disk").disabled = false;
+            loadDisks_opt();
         }
     </script>
 <!-- END: Original JavaScript Implementation -->
