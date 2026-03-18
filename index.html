@@ -161,7 +161,7 @@
 <svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                             SWTPM
                         </button>
-<button class="btn-iW11 text-white py-3 rounded-xl text-sm font-medium transition flex flex-col items-center gap-1" id="btn_installW11" onclick="loadDisks();" style="padding: 8px;" onmouseover=" updateBtniW11('on');">
+<button class="btn-iW11 text-white py-3 rounded-xl text-sm font-medium transition flex flex-col items-center gap-1" id="btn_installW11" onclick="loadDisks('opt_disk_w11');" style="padding: 8px;" onmouseover=" updateBtniW11('on');">
 <svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><rect height="18" rx="2" ry="2" width="18" x="3" y="3"></rect><line x1="12" x2="12" y1="3" y2="21"></line><line x1="3" x2="21" y1="12" y2="12"></line></svg>
                             Install OS
                         </button>
@@ -323,6 +323,7 @@
         let sock_w11Install = "";
         let fVirtIO = "drivers/virtio-win.iso";
         let carpeta_compartida = [];
+        let sizeDisOpt = 0;
 
         function openDialog(id) {
             document.getElementById(id).style.display = 'block';
@@ -385,7 +386,7 @@
                 document.getElementById('live_clock').innerText = now.toLocaleTimeString();
             }, 1000);
 
-            loadDisks_opt();
+            loadDisks("opt_disk");
         }
 
         function uptUSBDev(){
@@ -586,7 +587,7 @@
             } 
 
             setTimeout(() => {
-              loadDisks_opt()}, 1000);  
+              loadDisks("opt_disk")}, 1000);  
         }
 
         function startSFTPM(){
@@ -712,23 +713,30 @@
             }
         }
 
-        function loadDisks_opt(){
-            let disks = window.electronAPI.getDisks();
-            document.getElementById("opt_disk").innerHTML = "<option value='-1'>Elegir disco...</option>";
+        function loadDisks(elemento,disco){
+            let disks = (!disco)?window.electronAPI.getDisks():disco;
+            document.getElementById(elemento).innerHTML = "<option value='-1'>Elegir disco...</option>";
             for (var d = 0; d < disks.length; d++) {
-                document.getElementById("opt_disk").innerHTML += "<option value='"+disks[d]+"'>"+disks[d]+"</option>";
+              if(elemento == "opt_disk")
+                  document.getElementById(elemento).innerHTML += "<option value='"+disks[d].name+"'>"+disks[d].name+" - " + disks[d].size + "</option>";
+              else
+                  document.getElementById(elemento).innerHTML += "<option value='"+disks[d].name+"'>"+disks[d].name+"</option>";  
+            }
+            if(elemento == "opt_disk_w11"){
+              document.getElementById('txt_disk_w11').value='-1';
+              openDialog('dialog-installW11');
             }
         }
 
-        function loadDisks(){
+        /*function loadDisks(){
             let disks = window.electronAPI.getDisks();
             document.getElementById("opt_disk_w11").innerHTML = "<option value='-1'>Elegir disco...</option>";
             for (var d = 0; d < disks.length; d++) {
-                document.getElementById("opt_disk_w11").innerHTML += "<option value='"+disks[d]+"'>"+disks[d]+"</option>";
+                document.getElementById("opt_disk_w11").innerHTML += "<option value='"+disks[d].name+"'>"+disks[d].name+"</option>";
             }
             document.getElementById('txt_disk_w11').value='-1';
             openDialog('dialog-installW11');
-        }
+        }*/
 
         function limpiarCDRom(){
             document.getElementById('cdrom_so').value = "";
@@ -762,18 +770,46 @@
                 openDialog("dialog-alert");
                 return;
             }
+            sizeDisOpt = Bytesformat(document.getElementById("opt_disk")[document.getElementById("opt_disk").selectedIndex].text.split("-")[1].replace(" ","").split(" "));
+            log("Optimizando"+((document.getElementById("comprimir_disco").checked)?" y comprimiendo":"")+" disco " + document.getElementById("opt_disk")[document.getElementById("opt_disk").selectedIndex].text);
             document.getElementById("id_exec_opt").disabled = true;
             document.getElementById("id_exec_opt").classList.add("btn-stop");
-            document.getElementById("opt_disk").disabled = true;  
+            document.getElementById("opt_disk").disabled = true; 
+            document.getElementById("id_exec_opt").innerHTML = document.getElementById("id_exec_opt").innerHTML.replace("EJECUTAR","EJECUTANDO") 
 
             window.electronAPI.optimizarDisk(document.getElementById("opt_disk").value,document.getElementById("comprimir_disco").checked,((document.getElementById("borrar_disco").checked)?document.getElementById('nuevo_disco').innerHTML:""));   
         }
 
         function resetOptDiscos(){
-            document.getElementById("id_exec_opt").disabled = false;
-            document.getElementById("id_exec_opt").classList.remove("btn-stop");
-            document.getElementById("opt_disk").disabled = false;
-            loadDisks_opt();
+          let disks = window.electronAPI.getDisks();
+          let disco = ((document.getElementById("borrar_disco").checked)?document.getElementById('nuevo_disco').innerHTML:document.getElementById("opt_disk").value);
+          for (var d = 0; d < disks.length; d++) {
+                if(disks[d].name == disco){
+                  log("Disco optimizado " + parseFloat(100-((Bytesformat(disks[d].size.split(" ")) * 100)/sizeDisOpt)).toFixed(2) + "% " + disks[d].name + " - "+ disks[d].size);
+                  break;
+                }
+          }
+          document.getElementById("id_exec_opt").disabled = false;
+          document.getElementById("id_exec_opt").classList.remove("btn-stop");
+          document.getElementById("opt_disk").disabled = false;
+          document.getElementById("id_exec_opt").innerHTML = document.getElementById("id_exec_opt").innerHTML.replace("EJECUTANDO","EJECUTAR")
+          loadDisks("opt_disk",disks);
+        }
+
+        function Bytesformat(data){
+          const sizes = ['KB', 'MB', 'GB', 'TB', 'PB'];
+          let bytes = data[0];
+          let flagBytes = false;
+
+          for (var i = sizes.length-1; i >= 0 ; i--) {
+            if(sizes[i] == data[1]){
+              flagBytes = true;
+            }
+            if(flagBytes){
+              bytes = bytes * 1024;
+            }
+          }
+          return bytes;
         }
     </script>
 <!-- END: Original JavaScript Implementation -->

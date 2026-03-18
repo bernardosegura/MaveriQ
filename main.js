@@ -322,7 +322,7 @@ function createVirtIO(file) {
     }
 }
 
-function getDisks(){
+/*function getDisks(){
   const fs = require('fs');
   let nameDisks = [];
 
@@ -331,7 +331,7 @@ function getDisks(){
   
   nameDisks = fs.readdirSync("disks/");
   return nameDisks;
-}
+}*/
 
 function optimizarDisk(disk,compress,guardarcomo){
   const { spawn,exec } = require('child_process');
@@ -369,4 +369,33 @@ function updatePorcentaje(porcentaje){
 
 function finalizarOptimizacionDiscos(){
   win.webContents.executeJavaScript("resetOptDiscos();");
+}
+
+function getDisks(){
+  const fs = require('fs');
+  let path = "disks/";
+  let nameDisks = [];
+  let tmpNameDisks = [];
+
+  if(!fs.existsSync(path))
+    return nameDisks;
+
+  tmpNameDisks = fs.readdirSync(path);
+  for (var i = 0; i < tmpNameDisks.length; i++) {
+    nameDisks[i] = {name:tmpNameDisks[i], size: formatBytes(fs.statSync(path + tmpNameDisks[i]).size,0)}
+  }
+
+  return nameDisks;
+}
+
+function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB'];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
