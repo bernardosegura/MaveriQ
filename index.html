@@ -340,13 +340,13 @@
             let setlsusb = window.electronAPI.checklsusb();
             let setqemu = window.electronAPI.checkqemu();
 
-            openDialog("dialog-pass");
-            document.getElementById('txt_pws').focus();
-
             document.getElementById('app_version_label').innerHTML = "v" + window.electronAPI.getVersion();
             //document.getElementById('wnd_title').innerHTML = "MaveriQ v" + window.electronAPI.getVersion();
             //document.getElementById('dlg_pass_title').innerHTML = "MaveriQ Auth";
             document.getElementById('id_usr').innerHTML = window.electronAPI.getUser();
+
+            openDialog("dialog-pass");
+            document.getElementById('txt_pws').focus();
 
             if(!setlsusb){
                 document.getElementById('dialog-alert-mensaje').innerHTML = "Se requiere <b>lsusb</b>.";
