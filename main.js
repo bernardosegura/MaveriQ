@@ -74,7 +74,7 @@ function createWindow() {
       //enableRemoteModule: false,
     },
     autoHideMenuBar: false,
-    resizable: isdev,
+    resizable: true,//isdev,
     //maximizable: false,
     icon: path.join(__dirname, 'icon.png')
   });

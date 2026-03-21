@@ -73,7 +73,7 @@
 </head>
 <body class="h-screen flex flex-col overflow-hidden" onload="load()">
 <!-- BEGIN: Overlay & Modals -->
-<div class="overlay fixed inset-0 hidden transition-opacity" id="overlay"></div>
+<div class="overlay fixed inset-0 hidden transition-opacity" id="overlay" style="display: block;"></div>
 <!-- Password Modal -->
 <div class="dialog-container fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-100" id="dialog-pass">
 <h2 class="text-xl font-bold mb-4 text-center text-slate-800" id="dlg_pass_title">Autorización Requerida</h2>
@@ -340,13 +340,13 @@
             let setlsusb = window.electronAPI.checklsusb();
             let setqemu = window.electronAPI.checkqemu();
 
+            openDialog("dialog-pass");
+            document.getElementById('txt_pws').focus();
+
             document.getElementById('app_version_label').innerHTML = "v" + window.electronAPI.getVersion();
             //document.getElementById('wnd_title').innerHTML = "MaveriQ v" + window.electronAPI.getVersion();
             //document.getElementById('dlg_pass_title').innerHTML = "MaveriQ Auth";
             document.getElementById('id_usr').innerHTML = window.electronAPI.getUser();
-
-            openDialog("dialog-pass");
-            document.getElementById('txt_pws').focus();
 
             if(!setlsusb){
                 document.getElementById('dialog-alert-mensaje').innerHTML = "Se requiere <b>lsusb</b>.";
