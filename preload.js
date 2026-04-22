@@ -35,4 +35,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   createVirtIO: (file) => ipcRenderer.send("create_drive_virtio",file),
   getDisks:() => ipcRenderer.sendSync("get_disks"),
   upVirtiofsd:(pswd,source) => ipcRenderer.send("up_virtiofsd",[pswd,source]),
+  optimizarDisk:(disk,compress,saveas) => ipcRenderer.send("optimizar_disk",[disk,compress,saveas]),
 });

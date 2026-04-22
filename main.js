@@ -1,7 +1,7 @@
 const { app,ipcMain,BrowserWindow, globalShortcut, Menu } = require('electron');
 let win = null;
 let isdev = (__dirname.indexOf("app.asar") === -1)?true:false; 
-let virtiofsdFile = "extras/virtiofsd";
+let virtiofsdFile = "drivers/virtiofsd";
 
 const menu = [
   {
@@ -65,8 +65,8 @@ function msgBox(message){
 function createWindow() {
   const path = require('path');
   win = new BrowserWindow({
-    width: 933,
-    height: (291+180+62+189),
+    width: 1050,
+    height: 952,
     webPreferences: {
       nodeIntegration: true,
       preload: path.join(__dirname, 'preload.js'),
@@ -74,7 +74,7 @@ function createWindow() {
       //enableRemoteModule: false,
     },
     autoHideMenuBar: false,
-    resizable: isdev,
+    resizable: true,//isdev,
     //maximizable: false,
     icon: path.join(__dirname, 'icon.png')
   });
@@ -157,6 +157,10 @@ ipcMain.on('get_disks', (event) => {
 
 ipcMain.on('up_virtiofsd', (event, args) => {
   upVirtiofsd(args[0],args[1]);
+});
+
+ipcMain.on('optimizar_disk', (event, args) => {
+  optimizarDisk(args[0],args[1],args[2]);
 });
 
 function processUSB(disp, metodo,pswd,callback) {
@@ -318,7 +322,7 @@ function createVirtIO(file) {
     }
 }
 
-function getDisks(){
+/*function getDisks(){
   const fs = require('fs');
   let nameDisks = [];
 
@@ -327,4 +331,71 @@ function getDisks(){
   
   nameDisks = fs.readdirSync("disks/");
   return nameDisks;
+}*/
+
+function optimizarDisk(disk,compress,guardarcomo){
+  const { spawn,exec } = require('child_process');
+  let convert = '';
+  let pathDisk = 'disks/';
+
+  if(compress)
+    convert = spawn("qemu-img",['convert','-c','-p','-S','4k','-f','qcow2','-O','qcow2',pathDisk+disk,((guardarcomo == "")?pathDisk+disk+".tmp":pathDisk+guardarcomo)]);
+  else
+    convert = spawn("qemu-img",['convert','-p','-S','4k','-f','qcow2','-O','qcow2',pathDisk+disk,((guardarcomo == "")?pathDisk+disk+".tmp":pathDisk+guardarcomo)]);
+
+  convert.stdout.on('data', (data)=>{
+    let porcentaje = data.toString().replace(/[^0-9.]/g, '');
+    porcentaje = porcentaje.split(".");
+    porcentaje = porcentaje[0];
+    updatePorcentaje(porcentaje);
+  });
+
+  convert.stderr.on('data', (data)=>{
+      msgBox("<b>Error</b>: favor de revisar log en <b>Reporte de Actividades</b>.");
+      log(data.toString().replace(/\n/g,"</br>").replace(/'/g,"\\'"));
+  });
+
+  convert.on('exit', code => {
+        if(guardarcomo == ""){
+          exec('rm '+ pathDisk+disk + ' && mv '+ pathDisk+disk+".tmp "+ pathDisk+disk, (error, stdout, stderr) => { finalizarOptimizacionDiscos(); });
+        }else
+          finalizarOptimizacionDiscos();
+  });
+}
+
+function updatePorcentaje(porcentaje){
+  win.webContents.executeJavaScript("colocarPorcentaje("+porcentaje+");");
+}
+
+function finalizarOptimizacionDiscos(){
+  win.webContents.executeJavaScript("resetOptDiscos();");
+}
+
+function getDisks(){
+  const fs = require('fs');
+  let path = "disks/";
+  let nameDisks = [];
+  let tmpNameDisks = [];
+
+  if(!fs.existsSync(path))
+    return nameDisks;
+
+  tmpNameDisks = fs.readdirSync(path);
+  for (var i = 0; i < tmpNameDisks.length; i++) {
+    nameDisks[i] = {name:tmpNameDisks[i], size: formatBytes(fs.statSync(path + tmpNameDisks[i]).size,0)}
+  }
+
+  return nameDisks;
+}
+
+function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB'];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }

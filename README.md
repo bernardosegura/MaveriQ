@@ -17,10 +17,30 @@ Siéntase libre de jugar con estas configuraciones y agregar las propias si así
 5. __Seleccionar Disco__ al llegar ha este apartado, se deben cargar los drivers de almacenamiento de virtio, selecciona cargar drivers y posteriormente el cd he ir a la ruta de __viostor/w11/amd64__
 
 # Alternar entre Sistemas Operativos
-Para alternar entre sistemas es necesario borrar la bios, esto para que al cambiar de disco virtual este sea reconocido de inmediato y entre sin ningún problema, de lo contrario se tendía que modificar directamente en la maquina virtual para que identifique el sistema operativo diferente al que tenia ya registrado. Se puede usar la opción de limpiar bios para que se realice de manera automática el limpiado.
+Al intercambiar discos virtuales, es importante realizar una limpieza de la BIOS. Este procedimiento asegura que el nuevo sistema operativo sea reconocido de forma inmediata y automática. __Importante__: Si no se realiza este paso, se deberá configurar manualmente los parámetros de arranque dentro de la máquina virtual para que identifique el nuevo volumen. Se recomienda utilizar la función __"Limpiar BIOS"__ para automatizar este proceso.
 
 # Compartir Directorio con Windows Virtual
-Para que __Windows Virtualizado__ reconozca el directorio compartido, es necesario instalar [winfsp](https://winfsp.dev/) (instalar solo el Core) y de __virtio-win__ instalar __Viofs__, una vez instalado el driver __Viofs__, es impórtate que el servicio __VirtIO-FS__ se encuentre ejecutándose correctamente para poder acceder sin problema al directorio compartido.
+Para habilitar el acceso al directorio compartido en  __Windows Virtualizado__, es obligatorio instalar los siguientes componentes en la virtualización:
+1. [WinFSP](https://winfsp.dev/): Seleccione únicamente la opción Core durante la instalación.
+2. __VirtIO-Win__: Instale el driver __Viofs__.
+   
+__Nota crítica__: Una vez instalados, verifique que el servicio __VirtIO-FS__ se esté ejecutando correctamente. Sin este servicio activo, el sistema no podrá montar ni acceder al directorio compartido en el explorador de archivos.
+
+# Optimización de Discos SSD Virtuales
+Esta función reduce el tamaño del disco virtual eliminando de la imagen física los sectores que el sistema operativo invitado ya ha marcado como borrados. 
+### Requisito: Operación TRIM
+Para que el proceso de recorte sea efectivo, es necesario que el SO invitado ejecute primero la operación **TRIM**:
+* **En Windows:** 1. Clic derecho sobre la unidad → **Propiedades**.
+    2. Pestaña **Herramientas** → **Optimizar**.
+* **En Linux:** Ejecute el comando:
+    ```bash
+    sudo fstrim / -v
+    ```
+---
+### Compresión y Mantenimiento
+Para maximizar el ahorro de espacio en el almacenamiento físico, el disco virtual puede ser **comprimido** tras el proceso de recorte. 
+> [!TIP]
+> Se recomienda realizar tanto el **TRIM** como la **compresión** de forma periódica para mantener un uso de espacio mínimo en el host.
    
 # Ejecución del código fuente
 ```bash

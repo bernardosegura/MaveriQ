@@ -27,13 +27,16 @@ fs.rmSync(path.join(bPath, 'resources',"default_app.asar"), { force: true });
 //fs.renameSync(path.join(bPath, 'electron'), path.join(bPath, 'MaveriQ'));
 
 console.log('70%');
-fs.mkdirSync(path.join(bPath, 'resources',"app"), { recursive: true });    
+fs.mkdirSync(path.join(bPath, 'resources',"app","res"), { recursive: true });    
 fs.copyFileSync(path.join(__dirname, 'icon.png'), path.join(bPath, 'resources',"app",'icon.png'));
 fs.copyFileSync(path.join(__dirname, 'index.html'), path.join(bPath, 'resources',"app",'index.html'));
 //fs.copyFileSync(path.join(__dirname, 'index.js'), path.join(bPath, 'resources',"app",'index.js'));
 fs.copyFileSync(path.join(__dirname, 'main.js'), path.join(bPath, 'resources',"app",'main.js'));
 fs.copyFileSync(path.join(__dirname, 'package.json'), path.join(bPath, 'resources',"app",'package.json'));
 fs.copyFileSync(path.join(__dirname, 'preload.js'), path.join(bPath, 'resources',"app",'preload.js'));
+fs.copyFileSync(path.join(__dirname, 'res','fonts.googleapis.css2.css'), path.join(bPath, 'resources',"app",'res','fonts.googleapis.css2.css'));
+fs.copyFileSync(path.join(__dirname, 'res','tailwindcss_3.4.17.js'), path.join(bPath, 'resources',"app",'res','tailwindcss_3.4.17.js'));
+
 
 console.log('80%');
 asar.createPackage(path.join(bPath, 'resources',"app"), path.join(bPath, 'resources',"app.asar")).then(() => {
