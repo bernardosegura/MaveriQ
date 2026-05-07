@@ -4,8 +4,8 @@ const path = require('path');
 const AdmZip = require('adm-zip');
 
 // Ruta al archivo zip
-const zPath = path.join(__dirname, 'extras/base-v31.2.1.zip'); 
-const zMQPath = path.join(__dirname, 'extras/MaveriQ.zip'); 
+//const zPath = path.join(__dirname, 'extras/base-v31.2.1.zip'); 
+//const zMQPath = path.join(__dirname, 'extras/MaveriQ.zip'); 
 const bPath = path.join(__dirname, 'build'); // Ruta de la carpeta destino
 
 console.log("Iniciando construcción...");
@@ -16,15 +16,16 @@ if (fs.existsSync(bPath)) {
 fs.mkdirSync(bPath, { recursive: true });
     
 console.log('10%');
-const zip = new AdmZip(zPath);
+/*const zip = new AdmZip(zPath);
 zip.extractAllTo(bPath, true); 
 
 const mQ = new AdmZip(zMQPath);
-mQ.extractAllTo(bPath, true);
+mQ.extractAllTo(bPath, true);*/
+fs.cpSync("node_modules/electron/dist/", bPath, {recursive: true});
 
 console.log('60%');
 fs.rmSync(path.join(bPath, 'resources',"default_app.asar"), { force: true });
-//fs.renameSync(path.join(bPath, 'electron'), path.join(bPath, 'MaveriQ'));
+fs.renameSync(path.join(bPath, 'electron'), path.join(bPath, 'MaveriQ'));
 
 console.log('70%');
 fs.mkdirSync(path.join(bPath, 'resources',"app","res"), { recursive: true });    

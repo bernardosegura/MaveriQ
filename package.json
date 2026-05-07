@@ -1,6 +1,6 @@
 {
   "name": "MaveriQ",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "FrontEnd basico para la ejecicion de maquinas virtuales con qemu en Linux.",
   "main": "main.js",
   "scripts": {
@@ -13,7 +13,7 @@
   "dependencies": {
     "@electron/asar": "^3.2.17",
     "adm-zip": "^0.5.16",
-    "electron": "^31.2.1",
+    "electron": "^41.5.0",
     "username": "^7.0.0"
   }
 }

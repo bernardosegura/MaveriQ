@@ -1,6 +1,6 @@
 # <img src="https://github.com/bernardosegura/MaveriQ/blob/master/icon.png" style="width: 40px; height: 40px;" /> MaveriQ
 FrontEnd basico para la ejecución de máquinas virtuales preconfiguradas mediante un archivo de configuración con el motor de qemu.
-Impulsado por NodeJS (v20.15.0) y Electrón (v31.2.1).
+Impulsado por NodeJS (v20.15.0) y Electrón (v41.5.0).
 
 # Sistemas Preconfigurados
 1. __Instalacion para Windows 11 x64__
