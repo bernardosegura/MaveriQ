@@ -25,7 +25,7 @@ fs.cpSync("node_modules/electron/dist/", bPath, {recursive: true});
 
 console.log('60%');
 fs.rmSync(path.join(bPath, 'resources',"default_app.asar"), { force: true });
-//fs.renameSync(path.join(bPath, 'electron'), path.join(bPath, 'MaveriQ'));
+fs.renameSync(path.join(bPath, 'electron'), path.join(bPath, 'MaveriQ'));
 
 console.log('70%');
 fs.mkdirSync(path.join(bPath, 'resources',"app","res"), { recursive: true });    
