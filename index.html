@@ -1,324 +1,489 @@
 <!DOCTYPE html>
 
-<html lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title id="wnd_title">MaveriQ - Administrador de Virtualización</title>
-<!-- BEGIN: Scripts and Styles -->
-<script src="res/tailwindcss_3.4.17.js"></script>
-<!-- link href="https://fonts.googleapis.com" rel="preconnect"/>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title id="wnd_title">MaveriQ - Administrador de Virtualización</title>
+    <!-- BEGIN: Scripts and Styles -->
+    <script src="res/tailwindcss_3.4.17.js"></script>
+    <!-- link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/-->
-<link href="res/fonts.googleapis.css2.css" rel="stylesheet"/>
-<style data-purpose="custom-styling">
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f8fafc;
-      color: #1e293b;
-    }
-    .terminal-font {
-      font-family: 'JetBrains Mono', monospace;
-    }
-    /* Maintain compatibility with original JS class manipulations */
-    .btn-stop {
-      background-color: #94a3b8 !important;
-      cursor: not-allowed !important;
-      opacity: 0.7;
-    }
-    .btn-iW11 {
-      background-color: #0ea5e9;
-    }
-    .btn-iW11:hover {
-      background-color: #0284c7;
-    }
-    /* Modal backdrop styling */
-    #overlay {
-      background-color: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(4px);
-    }
-    .dialog-container {
-      display: none;
-      z-index: 1000;
-    }
-    /* Custom Scrollbar for Terminal */
-    #txt_log::-webkit-scrollbar {
-      width: 8px;
-    }
-    #txt_log::-webkit-scrollbar-track {
-      background: #0f172a;
-    }
-    #txt_log::-webkit-scrollbar-thumb {
-      background: #334155;
-      border-radius: 4px;
-    }
-    input[type="text"], input[type="password"], select {
-        @apply rounded-lg border-slate-200 focus:ring-blue-500 focus:border-blue-500 text-sm;
-    }
-  </style>
-<script data-purpose="tailwind-config">
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#2563eb',
-            secondary: '#64748b',
-            accent: '#f59e0b',
-            success: '#10b981',
-            danger: '#ef4444',
-          }
+    <link href="res/fonts.googleapis.css2.css" rel="stylesheet" />
+    <style data-purpose="custom-styling">
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
         }
-      }
-    }
-  </script>
-<!-- END: Scripts and Styles -->
+
+        .terminal-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Maintain compatibility with original JS class manipulations */
+        .btn-stop {
+            background-color: #94a3b8 !important;
+            cursor: not-allowed !important;
+            opacity: 0.7;
+        }
+
+        .btn-iW11 {
+            background-color: #0ea5e9;
+        }
+
+        .btn-iW11:hover {
+            background-color: #0284c7;
+        }
+
+        /* Modal backdrop styling */
+        #overlay {
+            background-color: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+        }
+
+        .dialog-container {
+            display: none;
+            z-index: 1000;
+        }
+
+        /* Custom Scrollbar for Terminal */
+        #txt_log::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #txt_log::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        #txt_log::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        select {
+            @apply rounded-lg border-slate-200 focus:ring-blue-500 focus:border-blue-500 text-sm;
+        }
+    </style>
+    <script data-purpose="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#64748b',
+                        accent: '#f59e0b',
+                        success: '#10b981',
+                        danger: '#ef4444',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- END: Scripts and Styles -->
 </head>
+
 <body class="h-screen flex flex-col overflow-hidden" onload="load()">
-<!-- BEGIN: Overlay & Modals -->
-<div class="overlay fixed inset-0 hidden transition-opacity" id="overlay" style="display: block;"></div>
-<!-- Password Modal -->
-<div class="dialog-container fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-100" id="dialog-pass">
-<h2 class="text-xl font-bold mb-4 text-center text-slate-800" id="dlg_pass_title">Autorización Requerida</h2>
-<div class="space-y-4">
-<p class="text-slate-600">Contraseña para <span class="font-semibold text-primary" id="id_usr"></span></p>
-<input class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" id="txt_pws" onkeyup="if(event.keyCode == 13) validarUsr();" type="password"/>
-<div class="flex gap-3 justify-end pt-2">
-<button class="px-4 py-2 text-slate-500 hover:text-slate-700 font-medium transition" id="dialog-pass-btnCancel" onclick="window.electronAPI.exit();">Cancelar</button>
-<button class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 font-medium shadow-lg shadow-blue-200 transition" id="dialog-pass-btnOk" onclick="validarUsr();">Aceptar</button>
-</div>
-</div>
-</div>
-<!-- Dynamic Disk Info Modal -->
-<div class="dialog-container fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-100" id="dialog-msg">
-<div class="flex items-center gap-3 mb-4 text-accent">
-<svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>
-<h2 class="text-lg font-bold text-slate-800" id="dlg_msg_title">¡Aviso Importante!</h2>
-</div>
-<p class="text-slate-600 text-sm mb-6 leading-relaxed">
-            El disco que vas a crear es <b>dinámico</b>. Solo ocupará el espacio real de los archivos que guardes en él, no el tamaño máximo que le asignes desde el inicio.
+    <!-- BEGIN: Overlay & Modals -->
+    <div class="overlay fixed inset-0 hidden transition-opacity" id="overlay" style="display: block;"></div>
+    <!-- Password Modal -->
+    <div class="dialog-container fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-100"
+        id="dialog-pass">
+        <h2 class="text-xl font-bold mb-4 text-center text-slate-800" id="dlg_pass_title">Autorización Requerida</h2>
+        <div class="space-y-4">
+            <p class="text-slate-600">Contraseña para <span class="font-semibold text-primary" id="id_usr"></span></p>
+            <input class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" id="txt_pws"
+                onkeyup="if(event.keyCode == 13) validarUsr();" type="password" />
+            <div class="flex gap-3 justify-end pt-2">
+                <button class="px-4 py-2 text-slate-500 hover:text-slate-700 font-medium transition"
+                    id="dialog-pass-btnCancel" onclick="window.electronAPI.exit();">Cancelar</button>
+                <button
+                    class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 font-medium shadow-lg shadow-blue-200 transition"
+                    id="dialog-pass-btnOk" onclick="validarUsr();">Aceptar</button>
+            </div>
+        </div>
+    </div>
+    <!-- Dynamic Disk Info Modal -->
+    <div class="dialog-container fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-100"
+        id="dialog-msg">
+        <div class="flex items-center gap-3 mb-4 text-accent">
+            <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" x2="12" y1="8" y2="12"></line>
+                <line x1="12" x2="12.01" y1="16" y2="16"></line>
+            </svg>
+            <h2 class="text-lg font-bold text-slate-800" id="dlg_msg_title">¡Aviso Importante!</h2>
+        </div>
+        <p class="text-slate-600 text-sm mb-6 leading-relaxed">
+            El disco que vas a crear es <b>dinámico</b>. Solo ocupará el espacio real de los archivos que guardes en él,
+            no el tamaño máximo que le asignes desde el inicio.
         </p>
-<div class="text-right">
-<button class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 font-medium" onclick="closeDialog('dialog-msg'); openDialog('dialog-cdd'); document.getElementById('txt_nombre').focus();">Entendido</button>
-</div>
-</div>
-<!-- Create Disk Modal -->
-<div class="dialog-container fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-100" id="dialog-cdd">
-<h2 class="text-xl font-bold mb-6 text-slate-800" id="dlg_cdd_title">Crear Disco Dinámico</h2>
-<div class="space-y-4">
-<div>
-<label class="block text-xs font-semibold text-slate-500 uppercase mb-1" for="txt_nombre">Nombre del disco</label>
-<input class="w-full" id="txt_nombre" placeholder="ssd_os" type="text"/>
-</div>
-<div>
-<label class="block text-xs font-semibold text-slate-500 uppercase mb-1" for="txt_tamanio">Capacidad Máxima (GB)</label>
-<input class="w-full" id="txt_tamanio" placeholder="64" type="text"/>
-</div>
-<div class="flex gap-3 justify-end pt-4">
-<button class="px-4 py-2 text-slate-500" id="dialog-cdd-btnCancel" onclick="closeDialog('dialog-cdd');">Cancelar</button>
-<button class="px-6 py-2 bg-primary text-white rounded-lg" id="dialog-cdd-btnOk" onclick="crearDisco();">Crear Disco</button>
-</div>
-</div>
-</div>
-<!-- Windows 11 Install Modal -->
-<div class="dialog-container fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-100" id="dialog-installW11">
-<h2 class="text-xl font-bold mb-6 text-slate-800" id="dlg_installW11_title">Instalación Asistida</h2>
-<div class="space-y-4">
-<div>
-<label class="block text-xs font-semibold text-slate-500 uppercase mb-1" for="opt_disk_w11">Seleccionar Disco Destino</label>
-<select class="w-full" id="opt_disk_w11" onchange="document.getElementById('txt_disk_w11').value=this.value;"></select>
-<input id="txt_disk_w11" type="hidden"/>
-</div>
-<div>
-<label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Imagen ISO del Sistema</label>
-<div class="flex items-center gap-2">
-<label class="flex-1 bg-slate-50 border border-dashed border-slate-300 px-4 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition truncate text-sm text-slate-600" for="file_iso_w11">
-<span id="file-text">Seleccionar ISO...</span>
-</label>
-<input class="hidden" id="file_iso_w11" onchange="document.getElementById('txt_iso_w11').value=this.files[0].path; document.getElementById('file-text').textContent=this.files[0].name;" type="file"/>
-<input id="txt_iso_w11" type="hidden"/>
-</div>
-</div>
-<div class="flex gap-3 justify-end pt-4">
-<button class="px-4 py-2 text-slate-500" onclick="closeDialog('dialog-installW11');">Cerrar</button>
-<button class="px-6 py-2 bg-success text-white rounded-lg font-medium" id="dialog-installW11-btnOk" onclick="installW11();">Iniciar Instalación</button>
-</div>
-</div>
-</div>
-<!-- Alert Modal -->
-<div class="dialog-container fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm border border-slate-100 text-center" id="dialog-alert">
-<div class="text-sm font-bold text-slate-400 mb-2">Aviso del Sistema</div>
-<div class="text-slate-800 font-medium mb-6" id="dialog-alert-mensaje"></div>
-<button class="w-full py-2 bg-slate-800 text-white rounded-lg hover:bg-black transition" id="dialog-alert-btnOk" onclick="if(this.innerHTML == 'Aceptar'){if(document.getElementById('dialog-pass').style.display == 'block'){document.getElementById('txt_pws').focus(); if(event.type == 'click')closeDialog('dialog-alert'); }else closeDialog('dialog-alert');}else{if(this.innerHTML == 'Cerrar'){window.electronAPI.exit();}}">Aceptar</button>
-</div>
-<!-- END: Overlay & Modals -->
-<!-- BEGIN: Main Dashboard Interface -->
-<header class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center shrink-0">
-<div class="flex items-center gap-3">
-<!--div class="bg-primary p-2 rounded-lg text-white">
+        <div class="text-right">
+            <button class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 font-medium"
+                onclick="closeDialog('dialog-msg'); openDialog('dialog-cdd'); document.getElementById('txt_nombre').focus();">Entendido</button>
+        </div>
+    </div>
+    <!-- Create Disk Modal -->
+    <div class="dialog-container fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-100"
+        id="dialog-cdd">
+        <h2 class="text-xl font-bold mb-6 text-slate-800" id="dlg_cdd_title">Crear Disco Dinámico</h2>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 uppercase mb-1" for="txt_nombre">Nombre del
+                    disco</label>
+                <input class="w-full" id="txt_nombre" placeholder="ssd_os" type="text" />
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 uppercase mb-1" for="txt_tamanio">Capacidad
+                    Máxima (GB)</label>
+                <input class="w-full" id="txt_tamanio" placeholder="64" type="text" />
+            </div>
+            <div class="flex gap-3 justify-end pt-4">
+                <button class="px-4 py-2 text-slate-500" id="dialog-cdd-btnCancel"
+                    onclick="closeDialog('dialog-cdd');">Cancelar</button>
+                <button class="px-6 py-2 bg-primary text-white rounded-lg" id="dialog-cdd-btnOk"
+                    onclick="crearDisco();">Crear Disco</button>
+            </div>
+        </div>
+    </div>
+    <!-- Windows 11 Install Modal -->
+    <div class="dialog-container fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-100"
+        id="dialog-installW11">
+        <h2 class="text-xl font-bold mb-6 text-slate-800" id="dlg_installW11_title">Instalación Asistida</h2>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 uppercase mb-1" for="opt_disk_w11">Seleccionar
+                    Disco Destino</label>
+                <select class="w-full" id="opt_disk_w11"
+                    onchange="document.getElementById('txt_disk_w11').value=this.value;"></select>
+                <input id="txt_disk_w11" type="hidden" />
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Imagen ISO del Sistema</label>
+                <div class="flex items-center gap-2">
+                    <label
+                        class="flex-1 bg-slate-50 border border-dashed border-slate-300 px-4 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition truncate text-sm text-slate-600"
+                        for="file_iso_w11">
+                        <span id="file-text">Seleccionar ISO...</span>
+                    </label>
+                    <input class="hidden" id="file_iso_w11"
+                        onchange="document.getElementById('txt_iso_w11').value=window.electronAPI.getFullPath(this.files[0]); document.getElementById('file-text').textContent=this.files[0].name;"
+                        type="file" />
+                    <input id="txt_iso_w11" type="hidden" />
+                </div>
+            </div>
+            <div class="flex gap-3 justify-end pt-4">
+                <button class="px-4 py-2 text-slate-500" onclick="closeDialog('dialog-installW11');">Cerrar</button>
+                <button class="px-6 py-2 bg-success text-white rounded-lg font-medium" id="dialog-installW11-btnOk"
+                    onclick="installW11();">Iniciar Instalación</button>
+            </div>
+        </div>
+    </div>
+    <!-- Alert Modal -->
+    <div class="dialog-container fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm border border-slate-100 text-center"
+        id="dialog-alert">
+        <div class="text-sm font-bold text-slate-400 mb-2">Aviso del Sistema</div>
+        <div class="text-slate-800 font-medium mb-6" id="dialog-alert-mensaje"></div>
+        <button class="w-full py-2 bg-slate-800 text-white rounded-lg hover:bg-black transition" id="dialog-alert-btnOk"
+            onclick="if(this.innerHTML == 'Aceptar'){if(document.getElementById('dialog-pass').style.display == 'block'){document.getElementById('txt_pws').focus(); if(event.type == 'click')closeDialog('dialog-alert'); }else closeDialog('dialog-alert');}else{if(this.innerHTML == 'Cerrar'){window.electronAPI.exit();}}">Aceptar</button>
+    </div>
+    <!-- END: Overlay & Modals -->
+    <!-- BEGIN: Main Dashboard Interface -->
+    <header class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center shrink-0">
+        <div class="flex items-center gap-3">
+            <!--div class="bg-primary p-2 rounded-lg text-white">
 <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><rect height="14" rx="2" ry="2" width="20" x="2" y="3"></rect><line x1="8" x2="16" y1="21" y2="21"></line><line x1="12" x2="12" y1="17" y2="21"></line></svg>
 </div>
 <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">MaveriQ</h1-->
-<div class="grid grid-cols-2 gap-3">
-<button class="bg-slate-800 text-white py-3 rounded-xl text-sm font-medium hover:bg-black transition flex flex-col items-center gap-1" id="btn_swtpm" onclick="startSFTPM()" title="TPM por Software" style="padding: 8px;">
-<svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                            SWTPM
-                        </button>
-<button class="btn-iW11 text-white py-3 rounded-xl text-sm font-medium transition flex flex-col items-center gap-1" id="btn_installW11" onclick="loadDisks('opt_disk_w11');" style="padding: 8px;" onmouseover=" updateBtniW11('on');">
-<svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><rect height="18" rx="2" ry="2" width="18" x="3" y="3"></rect><line x1="12" x2="12" y1="3" y2="21"></line><line x1="3" x2="21" y1="12" y2="12"></line></svg>
-                            Install OS
-                        </button>
-</div>
-</div>
-<div class="flex items-center gap-4">
-<div class="flex items-center gap-2">
-<span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase" title="Salir" onclick="window.electronAPI.exit();" style="cursor: pointer;"><div class="w-2 h-2 rounded-full bg-green-500 animate-pulse" style="float: left; position:relative; left:-3px; top: 3px; cursor: pointer;"></div><label id="app_version_label" style="cursor: pointer;">v0.0.0</label></span>
-</div>
-</div>
-</header>
-<main class="flex-1 overflow-y-auto p-8 bg-slate-50" id="container">
-<div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-<!-- Card 1: Operating System Settings -->
-<section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col">
-<div class="flex items-center gap-2 mb-6">
-<svg class="text-primary" fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-<h3 class="font-bold text-slate-800" style="cursor: default;">Configuración SO</h3>
-</div>
-<div class="space-y-4 flex-1">
-<div>
-<label class="block text-xs font-bold text-slate-400 uppercase mb-1">Plataforma</label>
-<select class="w-full cursor-pointer bg-slate-50" id="SisOpe" onchange="loadInf()"></select>
-</div>
-<div class="grid grid-cols-2 gap-4">
-<div>
-<label class="block text-xs font-bold text-slate-400 uppercase mb-1">Max CPUs</label>
-<input class="w-full" id="mCore" placeholder="p.ej. 4" type="text"/>
-</div>
-<div>
-<label class="block text-xs font-bold text-slate-400 uppercase mb-1">Cores</label>
-<input class="w-full" id="nCore" placeholder="p.ej. 2" type="text" title="Nucleos del Procesador"/>
-</div>
-</div>
-<div>
-<label class="block text-xs font-bold text-slate-400 uppercase mb-1">Memoria (RAM GB)</label>
-<input class="w-full" id="nRam" placeholder="4" type="text"/>
-</div>
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
-<div class="flex justify-between items-center mb-3">
-<span class="text-xs font-bold text-slate-400 uppercase" style="cursor: default;">CD-ROM / ISO</span>
-<div class="flex gap-2">
-<button class="text-primary hover:bg-blue-100 p-1 rounded-md transition" id="img_cdrom_so" onclick="document.getElementById('cdrom_so').click()" title="Agregar Imagen ISO">
-<svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path><path d="M7 12a5 5 0 0 1 5 -5"></path></svg>
-</button>
-<button class="text-danger hover:bg-red-100 p-1 rounded-md transition" id="img_cdrom_exp" onclick="limpiarCDRom()" title="Expulsar Imagen ISO">
-<svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M10 3h4l-2 3z"></path><path d="M15 17H9"></path><rect height="3" rx="1" width="16" x="4" y="18"></rect></svg>
-</button>
-</div>
-</div>
-<p class="text-sm text-slate-600 truncate italic" id="img_iso_cdrom" style="cursor: default;">Sin CD-Rom</p>
-<input class="hidden" id="cdrom_so" onchange="document.getElementById('img_iso_cdrom').innerHTML=this.files[0].name;" type="file"/>
-</div>
-</div>
-<button class="mt-8 w-full bg-primary text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-700 transition shadow-lg shadow-blue-200" id="ejecutarSO" onclick="play()">
-<svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            <div class="grid grid-cols-2 gap-3">
+                <button
+                    class="bg-slate-800 text-white py-3 rounded-xl text-sm font-medium hover:bg-black transition flex flex-col items-center gap-1"
+                    id="btn_swtpm" onclick="startSFTPM()" title="TPM por Software" style="padding: 8px;">
+                    <svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                    SWTPM
+                </button>
+                <button
+                    class="btn-iW11 text-white py-3 rounded-xl text-sm font-medium transition flex flex-col items-center gap-1"
+                    id="btn_installW11" onclick="loadDisks('opt_disk_w11');" style="padding: 8px;"
+                    onmouseover=" updateBtniW11('on');">
+                    <svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg">
+                        <rect height="18" rx="2" ry="2" width="18" x="3" y="3"></rect>
+                        <line x1="12" x2="12" y1="3" y2="21"></line>
+                        <line x1="3" x2="21" y1="12" y2="12"></line>
+                    </svg>
+                    Install OS
+                </button>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2">
+                <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase" title="Salir"
+                    onclick="window.electronAPI.exit();" style="cursor: pointer;">
+                    <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"
+                        style="float: left; position:relative; left:-3px; top: 3px; cursor: pointer;"></div><label
+                        id="app_version_label" style="cursor: pointer;">v0.0.0</label>
+                </span>
+            </div>
+        </div>
+    </header>
+    <main class="flex-1 overflow-y-auto p-8 bg-slate-50" id="container">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Card 1: Operating System Settings -->
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col">
+                <div class="flex items-center gap-2 mb-6">
+                    <svg class="text-primary" fill="none" height="20" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                    </svg>
+                    <h3 class="font-bold text-slate-800" style="cursor: default;">Configuración SO</h3>
+                </div>
+                <div class="space-y-4 flex-1">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Plataforma</label>
+                        <select class="w-full cursor-pointer bg-slate-50" id="SisOpe" onchange="loadInf()"></select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Max CPUs</label>
+                            <input class="w-full" id="mCore" placeholder="p.ej. 4" type="text" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Cores</label>
+                            <input class="w-full" id="nCore" placeholder="p.ej. 2" type="text"
+                                title="Nucleos del Procesador" />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Memoria (RAM GB)</label>
+                        <input class="w-full" id="nRam" placeholder="4" type="text" />
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-bold text-slate-400 uppercase" style="cursor: default;">CD-ROM /
+                                ISO</span>
+                            <div class="flex gap-2">
+                                <button class="text-primary hover:bg-blue-100 p-1 rounded-md transition"
+                                    id="img_cdrom_so" onclick="document.getElementById('cdrom_so').click()"
+                                    title="Agregar Imagen ISO">
+                                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round"
+                                        stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path>
+                                        <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+                                        <path d="M7 12a5 5 0 0 1 5 -5"></path>
+                                    </svg>
+                                </button>
+                                <button class="text-danger hover:bg-red-100 p-1 rounded-md transition"
+                                    id="img_cdrom_exp" onclick="limpiarCDRom()" title="Expulsar Imagen ISO">
+                                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round"
+                                        stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M10 3h4l-2 3z"></path>
+                                        <path d="M15 17H9"></path>
+                                        <rect height="3" rx="1" width="16" x="4" y="18"></rect>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-600 truncate italic" id="img_iso_cdrom" style="cursor: default;">
+                            Sin CD-Rom</p>
+                        <input class="hidden" id="cdrom_so"
+                            onchange="document.getElementById('img_iso_cdrom').innerHTML=this.files[0].name;"
+                            type="file" />
+                    </div>
+                </div>
+                <button
+                    class="mt-8 w-full bg-primary text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-700 transition shadow-lg shadow-blue-200"
+                    id="ejecutarSO" onclick="play()">
+                    <svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2.5" viewbox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
                     LANZAR SISTEMA
                 </button>
-</section>
-<!-- Card 2: Media -->
-<section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-<div class="flex items-center gap-2 mb-6">
-<svg class="text-primary" fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M2 8s.5-1 2-1 2 1 2 1"></path><path d="M2 12s.5-1 2-1 2 1 2 1"></path><path d="M2 16s.5-1 2-1 2 1 2 1"></path><path d="M17 12h2a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"></path><path d="M7 8h10"></path><path d="M7 12h10"></path><path d="M7 16h10"></path><path d="M7 4h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"></path></svg>
-<h3 class="font-bold text-slate-800" style="cursor: default;">Medios de Comunicación</h3>
-</div>
-<div class="space-y-6">
-<div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
-<div class="flex justify-between items-center mb-3">
-<span class="text-xs font-bold text-slate-400 uppercase" style="cursor: default;">Carpeta Compartida</span>
-<div class="flex gap-2">
-<button class="text-primary hover:bg-blue-100 p-1 rounded-md transition" id="img_dir_so" onclick="document.getElementById('dir_so').click()" title="Compartir Carpeta">
-<svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-</button>
-<button class="text-danger hover:bg-red-100 p-1 rounded-md transition" id="img_dir_exp" onclick="limpiarCarpComp()" title="Quitar Carpeta">
-<svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path><circle cx="12" cy="12" r="10"></circle></svg>
-</button>
-</div>
-</div>
-<p class="text-sm text-slate-600 truncate italic" id="dir_comp_so" title="Nota: Para Windows es necesario que este corriendo el servicio 'VirtIO-FS Service', log en /tmp/virtiofsd.log." style="cursor: default;">Sin Carpeta Compartida</p>
-<input class="hidden" id="dir_so" onchange="loadCapCop(this);" type="file" webkitdirectory=""/>
-</div>
-<div class="mt-6">
-<div class="flex justify-between items-center mb-2">
-<label class="text-xs font-bold text-slate-400 uppercase">Dispositivos USB</label>
-<button class="text-primary" id="uptUSB" onclick="uptUSBDev()" title="Actualizar Lista USB">
-<svg fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M3 21v-5h5"></path></svg>
-</button>
-</div>
-<select class="w-full mb-3" id="dev_usb"></select>
-<div class="flex items-center gap-2 mb-4">
-<input checked="" class="rounded text-primary" id="dev_xhci" type="checkbox"/>
-<label class="text-sm text-slate-600" for="dev_xhci">Usar Controlador XHCI</label>
-</div>
-<div class="flex gap-2">
-<button class="flex-1 bg-success text-white py-2 rounded-lg text-sm font-bold hover:opacity-90 transition" id="conUSB" onclick="conectUSB()" title="Conectar USB">CONECTAR</button>
-<button class="flex-1 bg-slate-400 text-white py-2 rounded-lg text-sm font-bold hover:opacity-90 transition" id="desUSB" onclick="desconectUSB()" title="Desconectar USB">DESCONECTAR</button>
-</div>
-</div>
-</div>
-</section>
-<!-- Card 3: Storage  -->
-<section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-<div class="flex items-center gap-2 mb-6">
-<svg class="text-primary" fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>
-<h3 class="font-bold text-slate-800" style="cursor: default;">Almacenamiento</h3>
-</div>
-<div class="space-y-6">
-<div class="flex flex-col gap-2">
-<span class="text-xs font-bold text-slate-400 uppercase" style="cursor: default;">Disco Duro Virtual</span>
-<button class="w-full flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl transition border border-slate-200" id="crearDisco" onclick="cdd()">
-<svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><line x1="12" x2="12" y1="5" y2="19"></line><line x1="5" x2="19" y1="12" y2="12"></line></svg>
+            </section>
+            <!-- Card 2: Media -->
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <div class="flex items-center gap-2 mb-6">
+                    <svg class="text-primary" fill="none" height="20" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2 8s.5-1 2-1 2 1 2 1"></path>
+                        <path d="M2 12s.5-1 2-1 2 1 2 1"></path>
+                        <path d="M2 16s.5-1 2-1 2 1 2 1"></path>
+                        <path d="M17 12h2a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"></path>
+                        <path d="M7 8h10"></path>
+                        <path d="M7 12h10"></path>
+                        <path d="M7 16h10"></path>
+                        <path d="M7 4h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"></path>
+                    </svg>
+                    <h3 class="font-bold text-slate-800" style="cursor: default;">Medios de Comunicación</h3>
+                </div>
+                <div class="space-y-6">
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-bold text-slate-400 uppercase" style="cursor: default;">Carpeta
+                                Compartida</span>
+                            <div class="flex gap-2">
+                                <button class="text-primary hover:bg-blue-100 p-1 rounded-md transition" id="img_dir_so"
+                                    onclick="document.getElementById('dir_so').click()" title="Compartir Carpeta">
+                                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round"
+                                        stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z">
+                                        </path>
+                                    </svg>
+                                </button>
+                                <button class="text-danger hover:bg-red-100 p-1 rounded-md transition" id="img_dir_exp"
+                                    onclick="limpiarCarpComp()" title="Quitar Carpeta">
+                                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round"
+                                        stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="m15 9-6 6"></path>
+                                        <path d="m9 9 6 6"></path>
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-600 truncate italic" id="dir_comp_so"
+                            title="Nota: Para Windows es necesario que este corriendo el servicio 'VirtIO-FS Service', log en /tmp/virtiofsd.log."
+                            style="cursor: default;">Sin Carpeta Compartida</p>
+                        <input class="hidden" id="dir_so" onchange="loadCapCop(this);" type="file" webkitdirectory="" />
+                    </div>
+                    <div class="mt-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase">Dispositivos USB</label>
+                            <button class="text-primary" id="uptUSB" onclick="uptUSBDev()" title="Actualizar Lista USB">
+                                <svg fill="none" height="14" stroke="currentColor" stroke-linecap="round"
+                                    stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="14"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                                    <path d="M21 3v5h-5"></path>
+                                    <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                                    <path d="M3 21v-5h5"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <select class="w-full mb-3" id="dev_usb"></select>
+                        <div class="flex items-center gap-2 mb-4">
+                            <input checked="" class="rounded text-primary" id="dev_xhci" type="checkbox" />
+                            <label class="text-sm text-slate-600" for="dev_xhci">Usar Controlador XHCI</label>
+                        </div>
+                        <div class="flex gap-2">
+                            <button
+                                class="flex-1 bg-success text-white py-2 rounded-lg text-sm font-bold hover:opacity-90 transition"
+                                id="conUSB" onclick="conectUSB()" title="Conectar USB">CONECTAR</button>
+                            <button
+                                class="flex-1 bg-slate-400 text-white py-2 rounded-lg text-sm font-bold hover:opacity-90 transition"
+                                id="desUSB" onclick="desconectUSB()" title="Desconectar USB">DESCONECTAR</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- Card 3: Storage  -->
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <div class="flex items-center gap-2 mb-6">
+                    <svg class="text-primary" fill="none" height="20" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" x2="12" y1="15" y2="3"></line>
+                    </svg>
+                    <h3 class="font-bold text-slate-800" style="cursor: default;">Almacenamiento</h3>
+                </div>
+                <div class="space-y-6">
+                    <div class="flex flex-col gap-2">
+                        <span class="text-xs font-bold text-slate-400 uppercase" style="cursor: default;">Disco Duro
+                            Virtual</span>
+                        <button
+                            class="w-full flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl transition border border-slate-200"
+                            id="crearDisco" onclick="cdd()">
+                            <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round"
+                                stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <line x1="12" x2="12" y1="5" y2="19"></line>
+                                <line x1="5" x2="19" y1="12" y2="12"></line>
+                            </svg>
                             Crear Disco Dinámico
                         </button>
-</div>
-<div>
-<label class="block text-xs font-semibold text-slate-500 uppercase mb-1" for="opt_disk">Optimizar Disco</label>
-<select class="w-full" id="opt_disk" onchange="colocarPorcentaje(0); document.getElementById('nuevo_disco').innerHTML=(this.value !='-1')?'opt_'+this.value:'';"></select>
-</div>
-<div class="flex items-center gap-2 mb-4">
-<input class="rounded text-primary" id="comprimir_disco" type="checkbox"/>
-<label class="text-sm text-slate-600" for="comprimir_disco">Comprimir Disco</label>
-</div>
-<div class="flex items-center gap-2 mb-4">
-<input checked="" class="rounded text-primary" id="borrar_disco" type="checkbox"/>
-<label class="text-sm text-slate-600" for="borrar_disco">Guardar como <b id="nuevo_disco"></b></label>
-</div>
-<div class="mt-6 pt-6 border-t border-slate-100">
-<div class="flex justify-between items-center mb-2">
-<label class="text-xs font-bold text-slate-400 uppercase">Optimización de Disco</label>
-<span class="text-xs font-bold text-success" id="porcentaje_texto">0%</span>
-</div>
-<div class="w-full bg-slate-100 rounded-full h-2">
-<div class="bg-success h-2 rounded-full shadow-sm" style="width: 0%" id="porcentaje_barra"></div>
-</div>
-</div>
-</div>
-<button class="mt-8 w-full bg-primary text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-700 transition shadow-lg shadow-blue-200" onclick="ejecutar_optimizacion()" title="Se requiere realizar un trim al disco desde el sistema virtualizado." id="id_exec_opt">
-<svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M21 12V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7"></path><line x1="3" x2="21" y1="9" y2="9"></line><path d="M16 19h6"></path><path d="M19 16v6"></path></svg>
-                   EJECUTAR
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase mb-1"
+                            for="opt_disk">Optimizar Disco</label>
+                        <select class="w-full" id="opt_disk"
+                            onchange="colocarPorcentaje(0); document.getElementById('nuevo_disco').innerHTML=(this.value !='-1')?'opt_'+this.value:'';"></select>
+                    </div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <input class="rounded text-primary" id="comprimir_disco" type="checkbox" />
+                        <label class="text-sm text-slate-600" for="comprimir_disco">Comprimir Disco</label>
+                    </div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <input checked="" class="rounded text-primary" id="borrar_disco" type="checkbox" />
+                        <label class="text-sm text-slate-600" for="borrar_disco">Guardar como <b
+                                id="nuevo_disco"></b></label>
+                    </div>
+                    <div class="mt-6 pt-6 border-t border-slate-100">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase">Optimización de Disco</label>
+                            <span class="text-xs font-bold text-success" id="porcentaje_texto">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-2">
+                            <div class="bg-success h-2 rounded-full shadow-sm" style="width: 0%" id="porcentaje_barra">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button
+                    class="mt-8 w-full bg-primary text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-700 transition shadow-lg shadow-blue-200"
+                    onclick="ejecutar_optimizacion()"
+                    title="Se requiere realizar un trim al disco desde el sistema virtualizado." id="id_exec_opt">
+                    <svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 12V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7"></path>
+                        <line x1="3" x2="21" y1="9" y2="9"></line>
+                        <path d="M16 19h6"></path>
+                        <path d="M19 16v6"></path>
+                    </svg>
+                    EJECUTAR
                 </button>
-</section>
-</div>
-</main>
-<!-- Terminal/Log Section -->
-<footer class="bg-[#0f172a] h-64 flex flex-col shrink-0">
-<div class="bg-slate-800 px-4 py-1 flex items-center justify-between">
-<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2" style="cursor: default;">
-<svg fill="none" height="12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24" width="12" xmlns="http://www.w3.org/2000/svg"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg>
+            </section>
+        </div>
+    </main>
+    <!-- Terminal/Log Section -->
+    <footer class="bg-[#0f172a] h-64 flex flex-col shrink-0">
+        <div class="bg-slate-800 px-4 py-1 flex items-center justify-between">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2"
+                style="cursor: default;">
+                <svg fill="none" height="12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2.5" viewbox="0 0 24 24" width="12" xmlns="http://www.w3.org/2000/svg">
+                    <polyline points="4 17 10 11 4 5"></polyline>
+                    <line x1="12" x2="20" y1="19" y2="19"></line>
+                </svg>
                 Reporte de Actividades
             </span>
-<span class="text-[10px] text-slate-500 terminal-font" id="live_clock" style="cursor: default;">--:--:--</span>
-</div>
-<textarea class="flex-1 bg-transparent border-none text-green-400 terminal-font text-xs p-4 resize-none focus:ring-0 leading-relaxed" id="txt_log" placeholder="Esperando eventos del sistema..." readonly=""></textarea>
-</footer>
-<!-- BEGIN: Original JavaScript Implementation -->
-<script data-purpose="original-logic">
-        let deviceUSB = [];		
+            <span class="text-[10px] text-slate-500 terminal-font" id="live_clock"
+                style="cursor: default;">--:--:--</span>
+        </div>
+        <textarea
+            class="flex-1 bg-transparent border-none text-green-400 terminal-font text-xs p-4 resize-none focus:ring-0 leading-relaxed"
+            id="txt_log" placeholder="Esperando eventos del sistema..." readonly=""></textarea>
+    </footer>
+    <!-- BEGIN: Original JavaScript Implementation -->
+    <script data-purpose="original-logic">
+        let deviceUSB = [];
         let sock_tpm = "/tmp/swtpm-sock";
         let sock_w11Install = "";
         let fVirtIO = "drivers/virtio-win.iso";
@@ -332,11 +497,11 @@
 
         function closeDialog(id) {
             document.getElementById(id).style.display = 'none';
-            if(document.querySelectorAll(".dialog-container[style='display: block;']").length == 0)
-                document.getElementById('overlay').style.display = 'none';		
+            if (document.querySelectorAll(".dialog-container[style='display: block;']").length == 0)
+                document.getElementById('overlay').style.display = 'none';
         }
 
-        function load(){
+        function load() {
             let setlsusb = window.electronAPI.checklsusb();
             let setqemu = window.electronAPI.checkqemu();
 
@@ -348,38 +513,38 @@
             openDialog("dialog-pass");
             document.getElementById('txt_pws').focus();
 
-            if(!setlsusb){
+            if (!setlsusb) {
                 document.getElementById('dialog-alert-mensaje').innerHTML = "Se requiere <b>lsusb</b>.";
                 openDialog("dialog-alert");
                 document.getElementById('dialog-alert-btnOk').innerHTML = "Cerrar";
             } else {
-                if(!setqemu){
+                if (!setqemu) {
                     document.getElementById('dialog-alert-mensaje').innerHTML = "Se requiere <b>qemu-system-x86_64</b>.";
                     openDialog("dialog-alert");
                     document.getElementById('dialog-alert-btnOk').innerHTML = "Cerrar";
-                } else {    
+                } else {
                     deviceUSB = window.electronAPI.lsusb();
                     let quemuOS = window.electronAPI.getOS();
-                    
+
                     document.getElementById("SisOpe").innerHTML = "<option value='-1'>Seleccionar Sistema...</option>";
                     for (var x = 0; x < quemuOS.length; x++) {
-                        if(quemuOS[x].type == "installed")
-                            document.getElementById("SisOpe").innerHTML += "<option value='"+x+"'>"+quemuOS[x].os+"</option>";
+                        if (quemuOS[x].type == "installed")
+                            document.getElementById("SisOpe").innerHTML += "<option value='" + x + "'>" + quemuOS[x].os + "</option>";
                         else {
-                            document.getElementById("btn_"+quemuOS[x].type).title = quemuOS[x].os;
-                            document.getElementById('dlg_'+quemuOS[x].type+'_title').innerHTML = quemuOS[x].os;
+                            document.getElementById("btn_" + quemuOS[x].type).title = quemuOS[x].os;
+                            document.getElementById('dlg_' + quemuOS[x].type + '_title').innerHTML = quemuOS[x].os;
                         }
-                    } 
+                    }
 
                     document.getElementById("dev_usb").innerHTML = "<option value='-1'>Elegir USB...</option>";
                     for (var u = 0; u < deviceUSB.length; u++) {
-                        document.getElementById("dev_usb").innerHTML += "<option value='"+u+"'>"+deviceUSB[u].desc+"</option>";
+                        document.getElementById("dev_usb").innerHTML += "<option value='" + u + "'>" + deviceUSB[u].desc + "</option>";
                     }
                 }
             }
             updateBtniW11("start");
             window.electronAPI.createVirtIO(fVirtIO);
-            
+
             // UI Clock
             setInterval(() => {
                 const now = new Date();
@@ -389,19 +554,19 @@
             loadDisks("opt_disk");
         }
 
-        function uptUSBDev(){
+        function uptUSBDev() {
             deviceUSB = window.electronAPI.lsusb();
             document.getElementById("dev_usb").innerHTML = "<option value='-1'>Elegir USB...</option>";
             for (var u = 0; u < deviceUSB.length; u++) {
-                document.getElementById("dev_usb").innerHTML += "<option value='"+u+"'>"+deviceUSB[u].desc+"</option>";
+                document.getElementById("dev_usb").innerHTML += "<option value='" + u + "'>" + deviceUSB[u].desc + "</option>";
             }
-            document.getElementById('dialog-alert-mensaje').innerHTML = "Listado USB Actualizado"; 
-            openDialog('dialog-alert');  
+            document.getElementById('dialog-alert-mensaje').innerHTML = "Listado USB Actualizado";
+            openDialog('dialog-alert');
             log("Listado USB Actualizado");
         }
 
-        function loadInf(){
-            if(document.getElementById("SisOpe").value == -1){
+        function loadInf() {
+            if (document.getElementById("SisOpe").value == -1) {
                 document.getElementById("mCore").value = "";
                 document.getElementById("nCore").value = "";
                 document.getElementById("nRam").value = "";
@@ -413,7 +578,7 @@
                 document.getElementById("nCore").value = qOS.ncore;
                 document.getElementById("nRam").value = qOS.ram;
 
-                if(window.electronAPI.validaPlayOS(qOS.socket)){
+                if (window.electronAPI.validaPlayOS(qOS.socket)) {
                     document.getElementById("ejecutarSO").disabled = true;
                     document.getElementById("ejecutarSO").classList.add("btn-stop");
                 } else {
@@ -423,30 +588,30 @@
             }
         }
 
-        function validarUsr(){
-            if(document.getElementById('dialog-alert').style.display == 'block'){
+        function validarUsr() {
+            if (document.getElementById('dialog-alert').style.display == 'block') {
                 closeDialog('dialog-alert');
             } else {
                 const usr = document.getElementById('id_usr').innerHTML;
                 document.getElementById('dialog-pass-btnOk').innerHTML = "Validando...";
-                
-                setTimeout(()=>{
-                    if(window.electronAPI.validaPswd(usr,document.getElementById('txt_pws').value)){
+
+                setTimeout(() => {
+                    if (window.electronAPI.validaPswd(usr, document.getElementById('txt_pws').value)) {
                         closeDialog('dialog-pass');
                         document.getElementById('dialog-pass-btnOk').innerHTML = "Aceptar";
                     } else {
                         document.getElementById('dialog-pass-btnOk').innerHTML = "Aceptar";
-                        document.getElementById('dialog-alert-mensaje').innerHTML = "Contraseña incorrecta para <b>"+usr+"</b>.";
+                        document.getElementById('dialog-alert-mensaje').innerHTML = "Contraseña incorrecta para <b>" + usr + "</b>.";
                         openDialog("dialog-alert");
-                        document.getElementById('dialog-alert-btnOk').innerHTML = "Aceptar"; 
+                        document.getElementById('dialog-alert-btnOk').innerHTML = "Aceptar";
                         document.getElementById('dialog-alert-btnOk').focus();
                     }
                 }, 100);
             }
         }
 
-        function play(){
-            if(document.getElementById("SisOpe").value != -1 && !document.getElementById("ejecutarSO").disabled){
+        function play() {
+            if (document.getElementById("SisOpe").value != -1 && !document.getElementById("ejecutarSO").disabled) {
                 let qOS = window.electronAPI.getOS()[document.getElementById("SisOpe").value];
                 let cmd = "";
                 let cdRom = "";
@@ -454,69 +619,69 @@
 
                 for (var i = 0; i < qOS.cmd.length; i++) {
                     cmd += qOS.cmd[i] + " ";
-                    cmd = cmd.replace("<-(ram)->",document.getElementById("nRam").value);
-                    cmd = cmd.replace("<-(mcore)->",document.getElementById("mCore").value);
-                    if(document.getElementById("nCore").value != "")
-                        cmd = cmd.replace("<-(ncore)->",",cores="+document.getElementById("nCore").value);
+                    cmd = cmd.replace("<-(ram)->", document.getElementById("nRam").value);
+                    cmd = cmd.replace("<-(mcore)->", document.getElementById("mCore").value);
+                    if (document.getElementById("nCore").value != "")
+                        cmd = cmd.replace("<-(ncore)->", ",cores=" + document.getElementById("nCore").value);
                     else
-                        cmd = cmd.replace("<-(ncore)->",document.getElementById("nCore").value);
-                    cmd = cmd.replace("<-(ssd)->",qOS.ssd);
-                    cmd = cmd.replace("<-(os)->",qOS.os);
-                    cmd = cmd.replace("<-(socket)->",qOS.socket); 
-                    cmd = (!qOS.arq)?cmd.replace("<-(arq)->",""):cmd.replace("<-(arq)->",qOS.arq+'/');
+                        cmd = cmd.replace("<-(ncore)->", document.getElementById("nCore").value);
+                    cmd = cmd.replace("<-(ssd)->", qOS.ssd);
+                    cmd = cmd.replace("<-(os)->", qOS.os);
+                    cmd = cmd.replace("<-(socket)->", qOS.socket);
+                    cmd = (!qOS.arq) ? cmd.replace("<-(arq)->", "") : cmd.replace("<-(arq)->", qOS.arq + '/');
                 }
 
-                if(carpeta_compartida.length > 0){
-                    window.electronAPI.upVirtiofsd(document.getElementById('txt_pws').value,carpeta_compartida[0]);
-                    cmd += "-chardev socket,id=char0,path=/tmp/vfs.sock -device vhost-user-fs-pci,chardev=char0,tag="+ carpeta_compartida[1] +" -object memory-backend-memfd,id=mem,size=" + document.getElementById("nRam").value + "G,share=on -numa node,memdev=mem ";
-                    dirComp = ", Dir "+ carpeta_compartida[0];
+                if (carpeta_compartida.length > 0) {
+                    window.electronAPI.upVirtiofsd(document.getElementById('txt_pws').value, carpeta_compartida[0]);
+                    cmd += "-chardev socket,id=char0,path=/tmp/vfs.sock -device vhost-user-fs-pci,chardev=char0,tag=" + carpeta_compartida[1] + " -object memory-backend-memfd,id=mem,size=" + document.getElementById("nRam").value + "G,share=on -numa node,memdev=mem ";
+                    dirComp = ", Dir " + carpeta_compartida[0];
                 }
 
-                if(document.getElementById('cdrom_so').files.length != 0){
-                    cdRom = document.getElementById('cdrom_so').files[0].path;
-                    cmd += "-drive file="+ cdRom +",media=cdrom ";
-                    let cdRomParts = cdRom.split("/");   
-                    cdRom = ", CDRom "+ cdRomParts[cdRomParts.length-1];   
+                if (document.getElementById('cdrom_so').files.length != 0) {
+                    cdRom = window.electronAPI.getFullPath(document.getElementById('cdrom_so').files[0]);
+                    cmd += "-drive file=" + cdRom + ",media=cdrom ";
+                    let cdRomParts = cdRom.split("/");
+                    cdRom = ", CDRom " + cdRomParts[cdRomParts.length - 1];
                 }
 
-                if(window.electronAPI.fExists("disks/"+qOS.ssd)){
-                    if(window.electronAPI.fExists("bios/"+qOS.arq)){
-                        window.electronAPI.playOS(document.getElementById('txt_pws').value,cmd,qOS.socket);
+                if (window.electronAPI.fExists("disks/" + qOS.ssd)) {
+                    if (window.electronAPI.fExists("bios/" + qOS.arq)) {
+                        window.electronAPI.playOS(document.getElementById('txt_pws').value, cmd, qOS.socket);
                         document.getElementById("ejecutarSO").disabled = true;
                         document.getElementById("ejecutarSO").classList.add("btn-stop");
-                        log("Se ejecuto " + document.getElementById("SisOpe").options[document.getElementById("SisOpe").selectedIndex].text + " (Max CPUs "+ document.getElementById("mCore").value + ", Core "+ ((document.getElementById("nCore").value != "")?document.getElementById("nCore").value:document.getElementById("mCore").value) + ", Ram " + document.getElementById("nRam").value + " GB"+cdRom+dirComp+")");  
+                        log("Se ejecuto " + document.getElementById("SisOpe").options[document.getElementById("SisOpe").selectedIndex].text + " (Max CPUs " + document.getElementById("mCore").value + ", Core " + ((document.getElementById("nCore").value != "") ? document.getElementById("nCore").value : document.getElementById("mCore").value) + ", Ram " + document.getElementById("nRam").value + " GB" + cdRom + dirComp + ")");
                     } else {
-                        document.getElementById('dialog-alert-mensaje').innerHTML = "Deben existir las <b> Bios "+ qOS.arq +"</b> para este sistema operativo.";
+                        document.getElementById('dialog-alert-mensaje').innerHTML = "Deben existir las <b> Bios " + qOS.arq + "</b> para este sistema operativo.";
                         openDialog("dialog-alert");
                         document.getElementById("SisOpe").value = -1;
                     }
                 } else {
-                    document.getElementById('dialog-alert-mensaje').innerHTML = "Debe existir <b>"+ qOS.ssd +"</b> en <b>disks/</b> con el sistema operativo.";
+                    document.getElementById('dialog-alert-mensaje').innerHTML = "Debe existir <b>" + qOS.ssd + "</b> en <b>disks/</b> con el sistema operativo.";
                     openDialog("dialog-alert");
                     document.getElementById("SisOpe").value = -1;
                 }
             } else {
-                if(document.getElementById("SisOpe").value == -1){
+                if (document.getElementById("SisOpe").value == -1) {
                     document.getElementById('dialog-alert-mensaje').innerHTML = "Debes seleccionar un Sistema Operativo.";
                     openDialog("dialog-alert");
                 }
             }
         }
 
-        function conectUSB(){
-            if(document.getElementById("dev_usb").value == -1){
+        function conectUSB() {
+            if (document.getElementById("dev_usb").value == -1) {
                 document.getElementById('dialog-alert-mensaje').innerHTML = "Debes seleccionar un dispositivo <b>USB</b>.";
                 openDialog("dialog-alert");
             } else {
-                if(document.getElementById("SisOpe").value == -1){
+                if (document.getElementById("SisOpe").value == -1) {
                     document.getElementById('dialog-alert-mensaje').innerHTML = "Debes seleccionar un <b>Sistema Operativo</b>.";
                     openDialog("dialog-alert");
                 } else {
                     let socketSO = window.electronAPI.getOS()[document.getElementById("SisOpe").value].socket;
-                    if(window.electronAPI.validaPlayOS(socketSO)){
-                        let disp = deviceUSB[document.getElementById("dev_usb").value].bus+':'+deviceUSB[document.getElementById("dev_usb").value].addr+"_"+socketSO;
-                        let xhci = (document.getElementById("dev_xhci").checked)?"on":"off";
-                        window.electronAPI.processUSB(disp,"add:"+xhci,document.getElementById('txt_pws').value,"respUSB");
+                    if (window.electronAPI.validaPlayOS(socketSO)) {
+                        let disp = deviceUSB[document.getElementById("dev_usb").value].bus + ':' + deviceUSB[document.getElementById("dev_usb").value].addr + "_" + socketSO;
+                        let xhci = (document.getElementById("dev_xhci").checked) ? "on" : "off";
+                        window.electronAPI.processUSB(disp, "add:" + xhci, document.getElementById('txt_pws').value, "respUSB");
                     } else {
                         document.getElementById('dialog-alert-mensaje').innerHTML = "Debe estar en ejecucion el <b>Sistema Operativo</b>.";
                         openDialog("dialog-alert");
@@ -525,25 +690,25 @@
             }
         }
 
-        function respUSB(data){
-            document.getElementById('dialog-alert-mensaje').innerHTML = "Se " + data.mensaje + " dispositivo <b>"+document.getElementById("dev_usb").options[document.getElementById("dev_usb").selectedIndex].text+"</b>";
+        function respUSB(data) {
+            document.getElementById('dialog-alert-mensaje').innerHTML = "Se " + data.mensaje + " dispositivo <b>" + document.getElementById("dev_usb").options[document.getElementById("dev_usb").selectedIndex].text + "</b>";
             openDialog("dialog-alert");
-            log("Se " + data.mensaje + " dispositivo "+document.getElementById("dev_usb").options[document.getElementById("dev_usb").selectedIndex].text);
+            log("Se " + data.mensaje + " dispositivo " + document.getElementById("dev_usb").options[document.getElementById("dev_usb").selectedIndex].text);
         }
 
-        function desconectUSB(){
-            if(document.getElementById("dev_usb").value == -1){
+        function desconectUSB() {
+            if (document.getElementById("dev_usb").value == -1) {
                 document.getElementById('dialog-alert-mensaje').innerHTML = "Debes seleccionar un dispositivo <b>USB</b>.";
                 openDialog("dialog-alert");
             } else {
-                if(document.getElementById("SisOpe").value == -1){
+                if (document.getElementById("SisOpe").value == -1) {
                     document.getElementById('dialog-alert-mensaje').innerHTML = "Debes seleccionar un <b>Sistema Operativo</b>.";
                     openDialog("dialog-alert");
                 } else {
                     let socketSO = window.electronAPI.getOS()[document.getElementById("SisOpe").value].socket;
-                    if(window.electronAPI.validaPlayOS(socketSO)){
-                        let disp = deviceUSB[document.getElementById("dev_usb").value].bus+':'+deviceUSB[document.getElementById("dev_usb").value].addr+"_"+socketSO;
-                        window.electronAPI.processUSB(disp,"del:xhci",document.getElementById('txt_pws').value,"respUSB");
+                    if (window.electronAPI.validaPlayOS(socketSO)) {
+                        let disp = deviceUSB[document.getElementById("dev_usb").value].bus + ':' + deviceUSB[document.getElementById("dev_usb").value].addr + "_" + socketSO;
+                        window.electronAPI.processUSB(disp, "del:xhci", document.getElementById('txt_pws').value, "respUSB");
                     } else {
                         document.getElementById('dialog-alert-mensaje').innerHTML = "Debe estar en ejecucion el <b>Sistema Operativo</b>.";
                         openDialog("dialog-alert");
@@ -552,49 +717,50 @@
             }
         }
 
-        function log(mensaje){
+        function log(mensaje) {
             let fecha = new Date();
-            let ds = (fecha.getDate() < 10) ? "0"+fecha.getDate() : fecha.getDate();
-            let ms = (fecha.getMonth() + 1 < 10) ? "0"+(fecha.getMonth() + 1) : (fecha.getMonth() + 1);
-            let hs = (fecha.getHours() < 10) ? "0"+fecha.getHours() : fecha.getHours();
-            let min = (fecha.getMinutes() < 10) ? "0"+fecha.getMinutes() : fecha.getMinutes();
-            let sc = (fecha.getSeconds() < 10) ? "0"+fecha.getSeconds() : fecha.getSeconds();
-            
+            let ds = (fecha.getDate() < 10) ? "0" + fecha.getDate() : fecha.getDate();
+            let ms = (fecha.getMonth() + 1 < 10) ? "0" + (fecha.getMonth() + 1) : (fecha.getMonth() + 1);
+            let hs = (fecha.getHours() < 10) ? "0" + fecha.getHours() : fecha.getHours();
+            let min = (fecha.getMinutes() < 10) ? "0" + fecha.getMinutes() : fecha.getMinutes();
+            let sc = (fecha.getSeconds() < 10) ? "0" + fecha.getSeconds() : fecha.getSeconds();
+
             let ts = ds + "/" + ms + "/" + fecha.getFullYear() + " " + hs + ":" + min + "." + sc;
-            let entry = ts + " - " + mensaje.replace("sudo","id").replace("password","get").replace(/<\/br>/gi,"\n");
+            let entry = ts + " - " + mensaje.replace("sudo", "id").replace("password", "get").replace(/<\/br>/gi, "\n");
             document.getElementById("txt_log").value += entry + "\n";
             document.getElementById("txt_log").scrollTop = document.getElementById("txt_log").scrollHeight;
         }
 
-        function cdd(){
+        function cdd() {
             openDialog("dialog-msg");
         }
 
-        function crearDisco(){
-            let disco = window.electronAPI.getNameDisk((document.getElementById("txt_nombre").value != "")?document.getElementById("txt_nombre").value : "ssd");
-            let tamanio = (document.getElementById("txt_tamanio").value != "")?document.getElementById("txt_tamanio").value + "G": "64G";
+        function crearDisco() {
+            let disco = window.electronAPI.getNameDisk((document.getElementById("txt_nombre").value != "") ? document.getElementById("txt_nombre").value : "ssd");
+            let tamanio = (document.getElementById("txt_tamanio").value != "") ? document.getElementById("txt_tamanio").value + "G" : "64G";
             let setqemuimg = window.electronAPI.checkqemuimg();
 
-            if(!setqemuimg){
+            if (!setqemuimg) {
                 log("Se requiere qemu-img.");
                 document.getElementById('dialog-alert-mensaje').innerHTML = "Se requiere <b>qemu-img</b>.";
                 openDialog("dialog-alert");
                 closeDialog('dialog-cdd');
-            } else {  
-                closeDialog('dialog-cdd');  
+            } else {
+                closeDialog('dialog-cdd');
                 log("Creando disco " + disco + " con un tamaño total de " + tamanio + " en disks...");
                 window.electronAPI.crearDisk(disco, tamanio);
-            } 
+            }
 
             setTimeout(() => {
-              loadDisks("opt_disk")}, 1000);  
+                loadDisks("opt_disk")
+            }, 1000);
         }
 
-        function startSFTPM(){
-            if(window.electronAPI.checkswtpm()){
+        function startSFTPM() {
+            if (window.electronAPI.checkswtpm()) {
                 window.electronAPI.createSWTPM(sock_tpm);
-                if(window.electronAPI.fExists(sock_tpm)){
-                    document.getElementById('dialog-alert-mensaje').innerHTML = "Ya se encuentra en ejecución swptm en el socket: <b>"+sock_tpm+"</b>.";
+                if (window.electronAPI.fExists(sock_tpm)) {
+                    document.getElementById('dialog-alert-mensaje').innerHTML = "Ya se encuentra en ejecución swptm en el socket: <b>" + sock_tpm + "</b>.";
                     openDialog("dialog-alert");
                 }
             } else {
@@ -604,64 +770,64 @@
             }
         }
 
-        function installW11(){
+        function installW11() {
             let quemuOS = window.electronAPI.getOS();
             let wInstall = {};
 
             for (var x = 0; x < quemuOS.length; x++) {
-                if(quemuOS[x].type == "installW11")
+                if (quemuOS[x].type == "installW11")
                     wInstall = quemuOS[x];
             }
-            
-            if(!window.electronAPI.fExists("disks/" + document.getElementById("txt_disk_w11").value)){
-                document.getElementById('dialog-alert-mensaje').innerHTML = "Se requiere el nombre del <b>disco virtual</b> en <b>disks/</b> para <b>"+ wInstall.os +"</b>.";
+
+            if (!window.electronAPI.fExists("disks/" + document.getElementById("txt_disk_w11").value)) {
+                document.getElementById('dialog-alert-mensaje').innerHTML = "Se requiere el nombre del <b>disco virtual</b> en <b>disks/</b> para <b>" + wInstall.os + "</b>.";
                 openDialog("dialog-alert");
             } else {
-                if(!window.electronAPI.fExists(document.getElementById("txt_iso_w11").value)){
-                    document.getElementById('dialog-alert-mensaje').innerHTML = "Se requiere la iso de <b>"+ wInstall.os +"</b>.";
+                if (!window.electronAPI.fExists(document.getElementById("txt_iso_w11").value)) {
+                    document.getElementById('dialog-alert-mensaje').innerHTML = "Se requiere la iso de <b>" + wInstall.os + "</b>.";
                     openDialog("dialog-alert");
-                } else {          
-                    let tpm = (window.electronAPI.isSWTPM(sock_tpm))?sock_tpm:"";
+                } else {
+                    let tpm = (window.electronAPI.isSWTPM(sock_tpm)) ? sock_tpm : "";
                     let cmd = "";
                     let swtpm = "-chardev socket,id=chrtpm,path=" + tpm + " -tpmdev emulator,id=tpm0,chardev=chrtpm -device tpm-tis,tpmdev=tpm0";
                     let driverVirtio = "";
 
                     closeDialog('dialog-installW11');
-                    if(tpm == "") swtpm = "";
+                    if (tpm == "") swtpm = "";
 
-                    if(!window.electronAPI.fExists("bios/"+wInstall.arq)){
-                        document.getElementById('dialog-alert-mensaje').innerHTML = "Deben existir las <b> Bios "+ wInstall.arq +"</b> para <b>"+ wInstall.os +"</b>.";
-                        openDialog("dialog-alert"); 
+                    if (!window.electronAPI.fExists("bios/" + wInstall.arq)) {
+                        document.getElementById('dialog-alert-mensaje').innerHTML = "Deben existir las <b> Bios " + wInstall.arq + "</b> para <b>" + wInstall.os + "</b>.";
+                        openDialog("dialog-alert");
                     } else {
                         for (var i = 0; i < wInstall.cmd.length; i++) {
                             cmd += wInstall.cmd[i] + " ";
-                            cmd = cmd.replace("<-(ram)->",wInstall.ram);
-                            cmd = cmd.replace("<-(mcore)->",wInstall.mcore);
-                            if(wInstall.ncore != "")
-                                cmd = cmd.replace("<-(ncore)->",",cores="+wInstall.ncore);
+                            cmd = cmd.replace("<-(ram)->", wInstall.ram);
+                            cmd = cmd.replace("<-(mcore)->", wInstall.mcore);
+                            if (wInstall.ncore != "")
+                                cmd = cmd.replace("<-(ncore)->", ",cores=" + wInstall.ncore);
                             else
-                                cmd = cmd.replace("<-(ncore)->",wInstall.ncore);
-                            cmd = cmd.replace("<-(os)->",wInstall.os);
-                            cmd = cmd.replace("<-(socket)->",wInstall.socket);
-                            cmd = (!wInstall.arq)?cmd.replace("<-(arq)->",""):cmd.replace("<-(arq)->",wInstall.arq+'/');
-                            cmd = cmd.replace("<-(ssd)->",document.getElementById("txt_disk_w11").value);
-                            cmd = cmd.replace("<-(isowin)->",document.getElementById("txt_iso_w11").value); 
-                            if(wInstall.cmd[i].indexOf(fVirtIO) !== -1)
+                                cmd = cmd.replace("<-(ncore)->", wInstall.ncore);
+                            cmd = cmd.replace("<-(os)->", wInstall.os);
+                            cmd = cmd.replace("<-(socket)->", wInstall.socket);
+                            cmd = (!wInstall.arq) ? cmd.replace("<-(arq)->", "") : cmd.replace("<-(arq)->", wInstall.arq + '/');
+                            cmd = cmd.replace("<-(ssd)->", document.getElementById("txt_disk_w11").value);
+                            cmd = cmd.replace("<-(isowin)->", document.getElementById("txt_iso_w11").value);
+                            if (wInstall.cmd[i].indexOf(fVirtIO) !== -1)
                                 driverVirtio = fVirtIO;
                         }
                         cmd += swtpm;
 
-                        if(driverVirtio != ""){
-                            if(window.electronAPI.fExists(driverVirtio)){
-                                exeWinInstall(wInstall,cmd);
+                        if (driverVirtio != "") {
+                            if (window.electronAPI.fExists(driverVirtio)) {
+                                exeWinInstall(wInstall, cmd);
                             } else {
                                 let tFVIOFaltan = "";
                                 for (var i = 1; i < 7; i++) {
-                                    if(!window.electronAPI.fExists(driverVirtio+"_"+i)){
-                                        tFVIOFaltan += driverVirtio +"_" + i + ",";
+                                    if (!window.electronAPI.fExists(driverVirtio + "_" + i)) {
+                                        tFVIOFaltan += driverVirtio + "_" + i + ",";
                                     }
-                                    if(i == 6){
-                                        if(tFVIOFaltan != ""){
+                                    if (i == 6) {
+                                        if (tFVIOFaltan != "") {
                                             log("Se requieren los binarios: " + tFVIOFaltan + " descargar de GitHub...");
                                             document.getElementById('dialog-alert-mensaje').innerHTML = "Se requieren los binarios: <b>" + tFVIOFaltan + "</b> descargar de <b>GitHub</b>...";
                                             openDialog("dialog-alert");
@@ -673,26 +839,26 @@
                                 }
                             }
                         } else {
-                            exeWinInstall(wInstall,cmd);
-                        }  
+                            exeWinInstall(wInstall, cmd);
+                        }
                     }
                 }
             }
         }
 
-        function exeWinInstall(wInstall,cmd){
-            window.electronAPI.playOS(document.getElementById('txt_pws').value,cmd,wInstall.socket);
-            log("Se ejecuto " + wInstall.os + " (Max CPUs "+ wInstall.mcore + ", Core "+ ((wInstall.ncore != "")?wInstall.ncore:wInstall.mcore) + ", Ram " + wInstall.ram + " GB)");
+        function exeWinInstall(wInstall, cmd) {
+            window.electronAPI.playOS(document.getElementById('txt_pws').value, cmd, wInstall.socket);
+            log("Se ejecuto " + wInstall.os + " (Max CPUs " + wInstall.mcore + ", Core " + ((wInstall.ncore != "") ? wInstall.ncore : wInstall.mcore) + ", Ram " + wInstall.ram + " GB)");
             document.getElementById("btn_installW11").disabled = true;
             document.getElementById("btn_installW11").classList.remove("btn-iW11");
             document.getElementById("btn_installW11").classList.add("btn-stop");
             sock_w11Install = wInstall.socket;
         }
 
-        function updateBtniW11(tipo){
-            if(tipo == "on"){
-                if(sock_w11Install != ""){
-                    if(window.electronAPI.validaPlayOS(sock_w11Install)){
+        function updateBtniW11(tipo) {
+            if (tipo == "on") {
+                if (sock_w11Install != "") {
+                    if (window.electronAPI.validaPlayOS(sock_w11Install)) {
                         document.getElementById("btn_installW11").disabled = true;
                         document.getElementById("btn_installW11").classList.remove("btn-iW11");
                         document.getElementById("btn_installW11").classList.add("btn-stop");
@@ -706,25 +872,25 @@
             } else {
                 let quemuOS = window.electronAPI.getOS();
                 for (var x = 0; x < quemuOS.length; x++) {
-                    if(quemuOS[x].type == "installW11")
+                    if (quemuOS[x].type == "installW11")
                         sock_w11Install = quemuOS[x].socket;
                 }
                 updateBtniW11("on");
             }
         }
 
-        function loadDisks(elemento,disco){
-            let disks = (!disco)?window.electronAPI.getDisks():disco;
+        function loadDisks(elemento, disco) {
+            let disks = (!disco) ? window.electronAPI.getDisks() : disco;
             document.getElementById(elemento).innerHTML = "<option value='-1'>Elegir disco...</option>";
             for (var d = 0; d < disks.length; d++) {
-              if(elemento == "opt_disk")
-                  document.getElementById(elemento).innerHTML += "<option value='"+disks[d].name+"'>"+disks[d].name+" - " + disks[d].size + "</option>";
-              else
-                  document.getElementById(elemento).innerHTML += "<option value='"+disks[d].name+"'>"+disks[d].name+"</option>";  
+                if (elemento == "opt_disk")
+                    document.getElementById(elemento).innerHTML += "<option value='" + disks[d].name + "'>" + disks[d].name + " - " + disks[d].size + "</option>";
+                else
+                    document.getElementById(elemento).innerHTML += "<option value='" + disks[d].name + "'>" + disks[d].name + "</option>";
             }
-            if(elemento == "opt_disk_w11"){
-              document.getElementById('txt_disk_w11').value='-1';
-              openDialog('dialog-installW11');
+            if (elemento == "opt_disk_w11") {
+                document.getElementById('txt_disk_w11').value = '-1';
+                openDialog('dialog-installW11');
             }
         }
 
@@ -738,79 +904,81 @@
             openDialog('dialog-installW11');
         }*/
 
-        function limpiarCDRom(){
+        function limpiarCDRom() {
             document.getElementById('cdrom_so').value = "";
             document.getElementById('img_iso_cdrom').innerHTML = "Sin CD-Rom";
         }
 
-        function loadCapCop(elem){
-            let dirAry = elem.files[0].path.split('/');
-            let dir = (dirAry.pop(),dirAry.join('/'));
+        function loadCapCop(elem) {
+            let dirAry = window.electronAPI.getFullPath(elem.files[0]).split('/');
+            let dir = (dirAry.pop(), dirAry.join('/'));;
             carpeta_compartida[0] = dir;
             carpeta_compartida[1] = dirAry.pop();
-            document.getElementById('dir_comp_so').innerHTML= dir; 
+            document.getElementById('dir_comp_so').innerHTML = dir;
         }
 
-        function limpiarCarpComp(){
+        function limpiarCarpComp() {
             document.getElementById('dir_so').value = "";
             document.getElementById('dir_comp_so').innerHTML = "Sin Carpeta Compartida";
             carpeta_compartida = [];
         }
 
-        function colocarPorcentaje(porcentaje){
-          if(!isNaN(porcentaje)){
-             document.getElementById("porcentaje_texto").innerHTML = porcentaje+"%";
-             document.getElementById("porcentaje_barra").style.width = porcentaje+"%";
-          }
+        function colocarPorcentaje(porcentaje) {
+            if (!isNaN(porcentaje)) {
+                document.getElementById("porcentaje_texto").innerHTML = porcentaje + "%";
+                document.getElementById("porcentaje_barra").style.width = porcentaje + "%";
+            }
         }
 
-        function ejecutar_optimizacion(){
-          if(document.getElementById("opt_disk").value == "-1"){
-              document.getElementById('dialog-alert-mensaje').innerHTML = "Se requiere el nombre del <b>disco virtual</b>";
+        function ejecutar_optimizacion() {
+            if (document.getElementById("opt_disk").value == "-1") {
+                document.getElementById('dialog-alert-mensaje').innerHTML = "Se requiere el nombre del <b>disco virtual</b>";
                 openDialog("dialog-alert");
                 return;
             }
-            sizeDisOpt = Bytesformat(document.getElementById("opt_disk")[document.getElementById("opt_disk").selectedIndex].text.split("-")[1].replace(" ","").split(" "));
-            log("Optimizando"+((document.getElementById("comprimir_disco").checked)?" y comprimiendo":"")+" disco " + document.getElementById("opt_disk")[document.getElementById("opt_disk").selectedIndex].text);
+            sizeDisOpt = Bytesformat(document.getElementById("opt_disk")[document.getElementById("opt_disk").selectedIndex].text.split("-")[1].replace(" ", "").split(" "));
+            log("Optimizando" + ((document.getElementById("comprimir_disco").checked) ? " y comprimiendo" : "") + " disco " + document.getElementById("opt_disk")[document.getElementById("opt_disk").selectedIndex].text);
             document.getElementById("id_exec_opt").disabled = true;
             document.getElementById("id_exec_opt").classList.add("btn-stop");
-            document.getElementById("opt_disk").disabled = true; 
-            document.getElementById("id_exec_opt").innerHTML = document.getElementById("id_exec_opt").innerHTML.replace("EJECUTAR","EJECUTANDO") 
+            document.getElementById("opt_disk").disabled = true;
+            document.getElementById("id_exec_opt").innerHTML = document.getElementById("id_exec_opt").innerHTML.replace("EJECUTAR", "EJECUTANDO")
 
-            window.electronAPI.optimizarDisk(document.getElementById("opt_disk").value,document.getElementById("comprimir_disco").checked,((document.getElementById("borrar_disco").checked)?document.getElementById('nuevo_disco').innerHTML:""));   
+            window.electronAPI.optimizarDisk(document.getElementById("opt_disk").value, document.getElementById("comprimir_disco").checked, ((document.getElementById("borrar_disco").checked) ? document.getElementById('nuevo_disco').innerHTML : ""));
         }
 
-        function resetOptDiscos(){
-          let disks = window.electronAPI.getDisks();
-          let disco = ((document.getElementById("borrar_disco").checked)?document.getElementById('nuevo_disco').innerHTML:document.getElementById("opt_disk").value);
-          for (var d = 0; d < disks.length; d++) {
-                if(disks[d].name == disco){
-                  log("Disco optimizado " + parseFloat(100-((Bytesformat(disks[d].size.split(" ")) * 100)/sizeDisOpt)).toFixed(2) + "% " + disks[d].name + " - "+ disks[d].size);
-                  break;
+        function resetOptDiscos() {
+            let disks = window.electronAPI.getDisks();
+            let disco = ((document.getElementById("borrar_disco").checked) ? document.getElementById('nuevo_disco').innerHTML : document.getElementById("opt_disk").value);
+            for (var d = 0; d < disks.length; d++) {
+                if (disks[d].name == disco) {
+                    log("Disco optimizado " + parseFloat(100 - ((Bytesformat(disks[d].size.split(" ")) * 100) / sizeDisOpt)).toFixed(2) + "% " + disks[d].name + " - " + disks[d].size);
+                    break;
                 }
-          }
-          document.getElementById("id_exec_opt").disabled = false;
-          document.getElementById("id_exec_opt").classList.remove("btn-stop");
-          document.getElementById("opt_disk").disabled = false;
-          document.getElementById("id_exec_opt").innerHTML = document.getElementById("id_exec_opt").innerHTML.replace("EJECUTANDO","EJECUTAR")
-          loadDisks("opt_disk",disks);
+            }
+            document.getElementById("id_exec_opt").disabled = false;
+            document.getElementById("id_exec_opt").classList.remove("btn-stop");
+            document.getElementById("opt_disk").disabled = false;
+            document.getElementById("id_exec_opt").innerHTML = document.getElementById("id_exec_opt").innerHTML.replace("EJECUTANDO", "EJECUTAR")
+            loadDisks("opt_disk", disks);
         }
 
-        function Bytesformat(data){
-          const sizes = ['KB', 'MB', 'GB', 'TB', 'PB'];
-          let bytes = data[0];
-          let flagBytes = false;
+        function Bytesformat(data) {
+            const sizes = ['KB', 'MB', 'GB', 'TB', 'PB'];
+            let bytes = data[0];
+            let flagBytes = false;
 
-          for (var i = sizes.length-1; i >= 0 ; i--) {
-            if(sizes[i] == data[1]){
-              flagBytes = true;
+            for (var i = sizes.length - 1; i >= 0; i--) {
+                if (sizes[i] == data[1]) {
+                    flagBytes = true;
+                }
+                if (flagBytes) {
+                    bytes = bytes * 1024;
+                }
             }
-            if(flagBytes){
-              bytes = bytes * 1024;
-            }
-          }
-          return bytes;
+            return bytes;
         }
     </script>
-<!-- END: Original JavaScript Implementation -->
-</body></html>
+    <!-- END: Original JavaScript Implementation -->
+</body>
+
+</html>
