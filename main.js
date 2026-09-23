@@ -227,7 +227,8 @@ function processUSB(disp, metodo, pswd, callback) {
 
 function validatePassword(usr, pswd) {
   const { execSync } = require('child_process');
-  const command = `echo "${pswd}" | su -c "whoami" - ${usr} 2>/dev/null`;
+  //const command = `echo "${pswd}" | su -c "whoami" - ${usr} 2>/dev/null`;
+  const command = `echo "${pswd}" | sudo -E -k -S su -c whoami - ${usr} 2>/dev/null`;
 
   preVirtiofsd(pswd);
   try {
