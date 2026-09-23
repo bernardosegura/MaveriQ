@@ -94,7 +94,7 @@
         id="dialog-pass">
         <h2 class="text-xl font-bold mb-4 text-center text-slate-800" id="dlg_pass_title">Autorización Requerida</h2>
         <div class="space-y-4">
-            <p class="text-slate-600">Contraseña para <span class="font-semibold text-primary" id="id_usr"></span></p>
+            <p class="text-slate-600">[sudo] Contraseña para <span class="font-semibold text-primary" id="id_usr"></span></p>
             <input class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" id="txt_pws"
                 onkeyup="if(event.keyCode == 13) validarUsr();" type="password" />
             <div class="flex gap-3 justify-end pt-2">
@@ -523,7 +523,8 @@
                     openDialog("dialog-alert");
                     document.getElementById('dialog-alert-btnOk').innerHTML = "Cerrar";
                 } else {
-                    deviceUSB = window.electronAPI.lsusb();
+                    //deviceUSB = window.electronAPI.lsusb();
+                    try { deviceUSB = window.electronAPI.lsusb(); } catch { deviceUSB = []; }
                     let quemuOS = window.electronAPI.getOS();
 
                     document.getElementById("SisOpe").innerHTML = "<option value='-1'>Seleccionar Sistema...</option>";
